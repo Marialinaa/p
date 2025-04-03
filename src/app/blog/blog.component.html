@@ -1,0 +1,87 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>Blog</ion-title>
+    <ion-buttons slot="end">
+      <ion-menu-button></ion-menu-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <div class="blog-container">
+    <h1 class="page-title">Blog</h1>
+
+    <div *ngIf="isAuthenticated" class="post-form">
+      <h2>{{ editMode ? 'Editar Post' : 'Novo Post' }}</h2>
+      <form [formGroup]="blogForm" (ngSubmit)="onSubmit()">
+        <ion-item>
+          <ion-label position="floating">Título</ion-label>
+          <ion-input type="text" formControlName="title"></ion-input>
+          <ion-note slot="error" *ngIf="title?.invalid && (title?.dirty || title?.touched)">
+            <span *ngIf="title?.errors?.['required']">Título é obrigatório</span>
+            <span *ngIf="title?.errors?.['minlength']">Título deve ter pelo menos 5 caracteres</span>
+          </ion-note>
+        </ion-item>
+        
+        <ion-item>
+          <ion-label position="floating">Conteúdo</ion-label>
+          <ion-textarea rows="5" formControlName="content"></ion-textarea>
+          <ion-note slot="error" *ngIf="content?.invalid && (content?.dirty || content?.touched)">
+            <span *ngIf="content?.errors?.['required']">Conteúdo é obrigatório</span>
+            <span *ngIf="content?.errors?.['minlength']">Conteúdo deve ter pelo menos 10 caracteres</span>
+          </ion-note>
+        </ion-item>
+        
+        <div class="button-group">
+          <ion-button expand="block" type="submit" [disabled]="blogForm.invalid || isSubmitting">
+            <ion-spinner name="crescent" *ngIf="isSubmitting"></ion-spinner>
+            <span *ngIf="!isSubmitting">{{ editMode ? 'Atualizar' : 'Publicar' }}</span>
+          </ion-button>
+          
+          <ion-button *ngIf="editMode" expand="block" fill="outline" (click)="resetForm()">
+            Cancelar
+          </ion-button>
+        </div>
+      </form>
+    </div>
+    
+    <div class="posts-container">
+      <h2>Posts Recentes</h2>
+      
+      <div *ngIf="isLoading" class="loading-container">
+        <ion-spinner></ion-spinner>
+        <p>Carregando posts...</p>
+      </div>
+      
+      <div *ngIf="!isLoading && posts.length === 0" class="no-posts">
+        <p>Nenhum post encontrado.</p>
+      </div>
+      
+      <ion-card *ngFor="let post of posts">
+        <ion-card-header>
+          <ion-card-title>{{ post.title }}</ion-card-title>
+          <ion-card-subtitle>
+            Por {{ post.author }} em {{ formatDate(post.createdAt) }}
+          </ion-card-subtitle>
+        </ion-card-header>
+        
+        <ion-card-content>
+          <p>{{ post.content }}</p>
+        </ion-card-content>
+        
+        <ion-footer *ngIf="isAuthenticated">
+          <ion-toolbar>
+            <ion-buttons slot="end">
+              <ion-button (click)="editPost(post)" color="primary">
+                <ion-icon slot="icon-only" name="pencil-outline"></ion-icon>
+              </ion-button>
+              <ion-button (click)="deletePost(post)" color="danger">
+                <ion-icon slot="icon-only" name="trash-outline"></ion-icon>
+              </ion-button>
+            </ion-buttons>
+          </ion-toolbar>
+        </ion-footer>
+      </ion-card>
+    </div>
+  </div>
+</ion-content>

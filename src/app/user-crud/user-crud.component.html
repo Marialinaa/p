@@ -1,0 +1,100 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/home"></ion-back-button>
+    </ion-buttons>
+    <ion-title>Gerenciamento de Usuários</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <div class="user-crud-container">
+    <h1 class="page-title">Gerenciamento de Usuários</h1>
+
+    <div class="user-form">
+      <h2>{{ editMode ? 'Editar Usuário' : 'Novo Usuário' }}</h2>
+      <form [formGroup]="userForm" (ngSubmit)="onSubmit()">
+        <ion-item>
+          <ion-label position="floating">Nome</ion-label>
+          <ion-input type="text" formControlName="name"></ion-input>
+          <ion-note slot="error" *ngIf="name?.invalid && (name?.dirty || name?.touched)">
+            <span *ngIf="name?.errors?.['required']">Nome é obrigatório</span>
+            <span *ngIf="name?.errors?.['minlength']">Nome deve ter pelo menos 3 caracteres</span>
+          </ion-note>
+        </ion-item>
+        
+        <ion-item>
+          <ion-label position="floating">Email</ion-label>
+          <ion-input type="email" formControlName="email"></ion-input>
+          <ion-note slot="error" *ngIf="email?.invalid && (email?.dirty || email?.touched)">
+            <span *ngIf="email?.errors?.['required']">Email é obrigatório</span>
+            <span *ngIf="email?.errors?.['email']">Digite um email válido</span>
+          </ion-note>
+        </ion-item>
+        
+        <ion-item>
+          <ion-label position="floating">Senha</ion-label>
+          <ion-input [type]="showPassword ? 'text' : 'password'" formControlName="password"></ion-input>
+          <ion-button fill="clear" slot="end" (click)="togglePasswordVisibility()">
+            <ion-icon [name]="showPassword ? 'eye-off' : 'eye'"></ion-icon>
+          </ion-button>
+          <ion-note slot="error" *ngIf="password?.invalid && (password?.dirty || password?.touched)">
+            <span *ngIf="password?.errors?.['required']">Senha é obrigatória</span>
+            <span *ngIf="password?.errors?.['minlength']">Senha deve ter pelo menos 6 caracteres</span>
+            <span *ngIf="password?.errors?.['passwordStrength']">Senha deve conter letras maiúsculas, minúsculas, números e caracteres especiais</span>
+          </ion-note>
+        </ion-item>
+        
+        <div class="button-group">
+          <ion-button expand="block" type="submit" [disabled]="userForm.invalid || isSubmitting">
+            <ion-spinner name="crescent" *ngIf="isSubmitting"></ion-spinner>
+            <span *ngIf="!isSubmitting">{{ editMode ? 'Atualizar' : 'Cadastrar' }}</span>
+          </ion-button>
+          
+          <ion-button *ngIf="editMode" expand="block" fill="outline" (click)="resetForm()">
+            Cancelar
+          </ion-button>
+        </div>
+      </form>
+    </div>
+    
+    <div class="users-container">
+      <h2>Lista de Usuários</h2>
+      
+      <div *ngIf="isLoading" class="loading-container">
+        <ion-spinner></ion-spinner>
+        <p>Carregando usuários...</p>
+      </div>
+      
+      <div *ngIf="!isLoading && users.length === 0" class="no-users">
+        <p>Nenhum usuário encontrado.</p>
+      </div>
+      
+      <ion-list *ngIf="!isLoading && users.length > 0">
+        <ion-item-sliding *ngFor="let user of users">
+          <ion-item>
+            <ion-avatar slot="start">
+              <img src="https://gravatar.com/avatar/{{ user.email | lowercase }}?d=identicon&s=100" alt="{{ user.name }}">
+            </ion-avatar>
+            <ion-label>
+              <h2>{{ user.name }}</h2>
+              <p>{{ user.email }}</p>
+              <p class="created-at" *ngIf="user.createdAt">
+                Criado em: {{ user.createdAt | date:'dd/MM/yyyy HH:mm' }}
+              </p>
+            </ion-label>
+          </ion-item>
+          
+          <ion-item-options side="end">
+            <ion-item-option (click)="editUser(user)" color="primary">
+              <ion-icon slot="icon-only" name="pencil-outline"></ion-icon>
+            </ion-item-option>
+            <ion-item-option (click)="deleteUser(user)" color="danger">
+              <ion-icon slot="icon-only" name="trash-outline"></ion-icon>
+            </ion-item-option>
+          </ion-item-options>
+        </ion-item-sliding>
+      </ion-list>
+    </div>
+  </div>
+</ion-content>

@@ -1,0 +1,72 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>Registro</ion-title>
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/login"></ion-back-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <div class="register-container">
+    <div class="register-form">
+      <h1>Criar Conta</h1>
+      <p>Preencha o formulário para criar sua conta</p>
+      
+      <form [formGroup]="registerForm" (ngSubmit)="onSubmit()">
+        <ion-item>
+          <ion-label position="floating">Nome</ion-label>
+          <ion-input type="text" formControlName="name"></ion-input>
+          <ion-note slot="error" *ngIf="name?.invalid && (name?.dirty || name?.touched)">
+            <span *ngIf="name?.errors?.['required']">Nome é obrigatório</span>
+            <span *ngIf="name?.errors?.['minlength']">Nome deve ter pelo menos 3 caracteres</span>
+          </ion-note>
+        </ion-item>
+        
+        <ion-item>
+          <ion-label position="floating">Email</ion-label>
+          <ion-input type="email" formControlName="email"></ion-input>
+          <ion-note slot="error" *ngIf="email?.invalid && (email?.dirty || email?.touched)">
+            <span *ngIf="email?.errors?.['required']">Email é obrigatório</span>
+            <span *ngIf="email?.errors?.['email']">Digite um email válido</span>
+          </ion-note>
+        </ion-item>
+        
+        <ion-item>
+          <ion-label position="floating">Senha</ion-label>
+          <ion-input [type]="showPassword ? 'text' : 'password'" formControlName="password"></ion-input>
+          <ion-button fill="clear" slot="end" (click)="togglePasswordVisibility()">
+            <ion-icon [name]="showPassword ? 'eye-off' : 'eye'"></ion-icon>
+          </ion-button>
+          <ion-note slot="error" *ngIf="password?.invalid && (password?.dirty || password?.touched)">
+            <span *ngIf="password?.errors?.['required']">Senha é obrigatória</span>
+            <span *ngIf="password?.errors?.['minlength']">Senha deve ter pelo menos 6 caracteres</span>
+            <span *ngIf="password?.errors?.['passwordStrength']">Senha deve conter letras maiúsculas, minúsculas, números e caracteres especiais</span>
+          </ion-note>
+        </ion-item>
+        
+        <ion-item>
+          <ion-label position="floating">Confirmar senha</ion-label>
+          <ion-input [type]="showPassword ? 'text' : 'password'" formControlName="confirmPassword"></ion-input>
+          <ion-note slot="error" *ngIf="confirmPassword?.invalid && (confirmPassword?.dirty || confirmPassword?.touched)">
+            <span *ngIf="confirmPassword?.errors?.['required']">Confirmação de senha é obrigatória</span>
+          </ion-note>
+          <ion-note slot="error" *ngIf="registerForm.hasError('mismatch') && confirmPassword?.touched">
+            As senhas não coincidem
+          </ion-note>
+        </ion-item>
+
+        <div class="error-message" *ngIf="errorMessage">{{ errorMessage }}</div>
+        
+        <ion-button expand="block" type="submit" [disabled]="registerForm.invalid || isSubmitting">
+          <ion-spinner name="crescent" *ngIf="isSubmitting"></ion-spinner>
+          <span *ngIf="!isSubmitting">Registrar</span>
+        </ion-button>
+        
+        <div class="login-link">
+          <p>Já tem uma conta? <a (click)="navigateToLogin()">Faça login</a></p>
+        </div>
+      </form>
+    </div>
+  </div>
+</ion-content>

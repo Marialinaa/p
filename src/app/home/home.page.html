@@ -1,0 +1,85 @@
+<ion-header [translucent]="true">
+  <ion-toolbar>
+    <ion-title>
+      TenK
+    </ion-title>
+    <ion-buttons slot="end">
+      <ion-button *ngIf="!isAuthenticated" routerLink="/login">Login</ion-button>
+      <ion-button *ngIf="!isAuthenticated" routerLink="/register">Registrar</ion-button>
+      <ion-button *ngIf="isAuthenticated" routerLink="/blog">Blog</ion-button>
+      <ion-button *ngIf="isAuthenticated" routerLink="/user-crud">Usuários</ion-button>
+      <ion-button *ngIf="isAuthenticated" (click)="logout()">Sair</ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true">
+  <div class="home-container">
+    <div class="welcome-section">
+      <h1>Bem-vindo ao TenK</h1>
+      
+      <div *ngIf="isAuthenticated" class="authenticated-content">
+        <p>Olá, <strong>{{ userName }}</strong>!</p>
+        <p>Você está logado e possui acesso a todas as funcionalidades do sistema.</p>
+        
+        <div class="action-buttons">
+          <ion-button routerLink="/blog" expand="block">
+            <ion-icon slot="start" name="newspaper-outline"></ion-icon>
+            Blog
+          </ion-button>
+          
+          <ion-button routerLink="/user-crud" expand="block">
+            <ion-icon slot="start" name="people-outline"></ion-icon>
+            Gerenciar Usuários
+          </ion-button>
+        </div>
+      </div>
+      
+      <div *ngIf="!isAuthenticated" class="unauthenticated-content">
+        <p>Sistema de gerenciamento com blog e CRUD de usuários</p>
+        
+        <div class="action-buttons">
+          <ion-button (click)="navigateToLogin()" expand="block" color="primary">
+            <ion-icon slot="start" name="log-in-outline"></ion-icon>
+            Login
+          </ion-button>
+          
+          <ion-button (click)="navigateToRegister()" expand="block" color="secondary">
+            <ion-icon slot="start" name="person-add-outline"></ion-icon>
+            Registrar
+          </ion-button>
+        </div>
+      </div>
+    </div>
+
+    <div class="features-section">
+      <h2>Recursos do Sistema</h2>
+      
+      <div class="features-grid">
+        <div class="feature-card">
+          <ion-icon name="shield-checkmark-outline"></ion-icon>
+          <h3>Autenticação Segura</h3>
+          <p>Login protegido com CAPTCHA e validação de senhas fortes.</p>
+        </div>
+        
+        <div class="feature-card">
+          <ion-icon name="newspaper-outline"></ion-icon>
+          <h3>Sistema de Blog</h3>
+          <p>Crie, edite e gerencie posts em um blog integrado.</p>
+        </div>
+        
+        <div class="feature-card">
+          <ion-icon name="people-outline"></ion-icon>
+          <h3>CRUD de Usuários</h3>
+          <p>Gerencie usuários com operações completas de CRUD.</p>
+        </div>
+        
+        <div class="feature-card">
+          <ion-icon name="phone-portrait-outline"></ion-icon>
+          <h3>Design Responsivo</h3>
+          <p>Interface adaptada para todos os tamanhos de dispositivos.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</ion-content>

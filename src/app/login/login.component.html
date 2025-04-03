@@ -1,0 +1,62 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>Login</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <div class="login-container">
+    <div class="login-form">
+      <h1>Login</h1>
+      <p>Entre com suas credenciais para acessar o sistema</p>
+      
+      <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
+        <ion-item>
+          <ion-label position="floating">Email</ion-label>
+          <ion-input type="email" formControlName="email"></ion-input>
+          <ion-note slot="error" *ngIf="email?.invalid && (email?.dirty || email?.touched)">
+            <span *ngIf="email?.errors?.['required']">Email é obrigatório</span>
+            <span *ngIf="email?.errors?.['email']">Digite um email válido</span>
+          </ion-note>
+        </ion-item>
+        
+        <ion-item>
+          <ion-label position="floating">Senha</ion-label>
+          <ion-input [type]="showPassword ? 'text' : 'password'" formControlName="password"></ion-input>
+          <ion-button fill="clear" slot="end" (click)="togglePasswordVisibility()">
+            <ion-icon [name]="showPassword ? 'eye-off' : 'eye'"></ion-icon>
+          </ion-button>
+          <ion-note slot="error" *ngIf="password?.invalid && (password?.dirty || password?.touched)">
+            <span *ngIf="password?.errors?.['required']">Senha é obrigatória</span>
+          </ion-note>
+        </ion-item>
+        
+        <div class="captcha-container">
+          <canvas #captchaCanvas width="200" height="60"></canvas>
+          <ion-button fill="clear" (click)="generateCaptcha()">
+            <ion-icon name="refresh-outline"></ion-icon>
+          </ion-button>
+        </div>
+        
+        <ion-item>
+          <ion-label position="floating">Digite o código acima</ion-label>
+          <ion-input type="text" formControlName="captcha"></ion-input>
+          <ion-note slot="error" *ngIf="captcha?.invalid && (captcha?.dirty || captcha?.touched)">
+            <span *ngIf="captcha?.errors?.['required']">Código de verificação é obrigatório</span>
+          </ion-note>
+        </ion-item>
+
+        <div class="error-message" *ngIf="errorMessage">{{ errorMessage }}</div>
+        
+        <ion-button expand="block" type="submit" [disabled]="loginForm.invalid || isSubmitting">
+          <ion-spinner name="crescent" *ngIf="isSubmitting"></ion-spinner>
+          <span *ngIf="!isSubmitting">Entrar</span>
+        </ion-button>
+        
+        <div class="register-link">
+          <p>Não tem uma conta? <a (click)="navigateToRegister()">Registre-se</a></p>
+        </div>
+      </form>
+    </div>
+  </div>
+</ion-content>

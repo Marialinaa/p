@@ -1,0 +1,139 @@
+ion-header {
+  background-color: #f8f9fa;
+}
+
+ion-toolbar {
+  --background: #3880ff;
+  color: white;
+}
+
+ion-title {
+  font-size: 1.5rem;
+}
+
+ion-content {
+  padding: 16px;
+}
+
+ion-item {
+  margin-bottom: 15px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  padding: 10px;
+  --padding-start: 0;
+  --inner-padding-end: 0;
+}
+
+.user-crud-container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.page-title {
+  color: var(--ion-color-primary);
+  margin-bottom: 20px;
+  text-align: center;
+  font-weight: bold;
+}
+
+.user-form {
+  background-color: white;
+  border-radius: 10px;
+  padding: 20px;
+  margin-bottom: 30px;
+  box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
+  
+  h2 {
+    color: var(--ion-color-primary);
+    margin-top: 0;
+  }
+}
+
+.button-group {
+  display: flex;
+  gap: 10px;
+  margin-top: 20px;
+  
+  ion-button {
+    flex: 1;
+  }
+}
+
+.users-container {
+  h2 {
+    color: var(--ion-color-primary);
+    margin-bottom: 15px;
+  }
+}
+
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 30px 0;
+  
+  p {
+    margin-top: 10px;
+    color: var(--ion-color-medium);
+  }
+}
+
+.no-users {
+  text-align: center;
+  padding: 20px;
+  color: var(--ion-color-medium);
+  background-color: #f8f8f8;
+  border-radius: 8px;
+}
+
+ion-list {
+  background: transparent;
+  padding: 0;
+  
+  ion-item {
+    --border-radius: 8px;
+    margin-bottom: 8px;
+    --background: white;
+    --padding-start: 16px;
+    --padding-end: 16px;
+    --padding-top: 12px;
+    --padding-bottom: 12px;
+    box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.05);
+  }
+  
+  h2 {
+    font-weight: 600;
+    font-size: 1.1rem;
+    color: var(--ion-color-dark);
+    margin: 0 0 5px 0;
+  }
+  
+  p {
+    margin: 0;
+    color: var(--ion-color-medium);
+    font-size: 0.9rem;
+    
+    &.created-at {
+      font-size: 0.8rem;
+      margin-top: 5px;
+      color: var(--ion-color-medium-shade);
+    }
+  }
+}
+
+ion-avatar {
+  width: 50px;
+  height: 50px;
+}
+
+@media (max-width: 600px) {
+  .user-crud-container {
+    padding: 15px;
+  }
+  
+  .user-form {
+    padding: 15px;
+  }
+}
