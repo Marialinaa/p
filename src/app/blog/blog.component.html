@@ -1,16 +1,41 @@
 <ion-header>
   <ion-toolbar>
-    <ion-title>Blog</ion-title>
-    <ion-buttons slot="end">
-      <ion-menu-button></ion-menu-button>
+    <ion-buttons slot="start">
+      <ion-button routerLink="/home" class="back-home-btn">
+        <ion-icon name="arrow-back-outline"></ion-icon>
+        <span class="back-text">Voltar</span>
+      </ion-button>
     </ion-buttons>
+    <div class="container header-container">
+      <div class="logo">
+        <i class="fas fa-futbol"></i>
+        <h1>Gol de Placa</h1>
+      </div>
+      <nav>
+        <ul>
+          <li><a href="#inicio">Início</a></li>
+          <li><a href="#noticias">Notícias</a></li>
+          <li><a href="#projetos">Projetos</a></li>
+          <li><a href="#sobre">Sobre</a></li>
+          <li><a href="#contato">Contato</a></li>
+        </ul>
+      </nav>
+    </div>
   </ion-toolbar>
 </ion-header>
 
-<ion-content>
-  <div class="blog-container">
-    <h1 class="page-title">Blog</h1>
+<ion-content class="main-content">
+  <!-- Hero Section -->
+  <section class="hero" id="inicio">
+    <div class="hero-content">
+      <h2>Seu Portal Esportivo</h2>
+      <p>Acompanhe as últimas notícias, análises e estatísticas do mundo dos esportes. Futebol, basquete, vôlei e muito mais!</p>
+      <a href="#noticias" class="btn">Ver Notícias</a>
+    </div>
+  </section>
 
+  <div class="container">
+    <!-- Post Form for Authenticated Users -->
     <div *ngIf="isAuthenticated" class="post-form">
       <h2>{{ editMode ? 'Editar Post' : 'Novo Post' }}</h2>
       <form [formGroup]="blogForm" (ngSubmit)="onSubmit()">
@@ -33,55 +58,239 @@
         </ion-item>
         
         <div class="button-group">
-          <ion-button expand="block" type="submit" [disabled]="blogForm.invalid || isSubmitting">
+          <button class="btn" type="submit" [disabled]="blogForm.invalid || isSubmitting">
             <ion-spinner name="crescent" *ngIf="isSubmitting"></ion-spinner>
             <span *ngIf="!isSubmitting">{{ editMode ? 'Atualizar' : 'Publicar' }}</span>
-          </ion-button>
+          </button>
           
-          <ion-button *ngIf="editMode" expand="block" fill="outline" (click)="resetForm()">
+          <button *ngIf="editMode" class="btn outline" (click)="resetForm()">
             Cancelar
-          </ion-button>
+          </button>
         </div>
       </form>
     </div>
+
+    <!-- Latest News Section -->
+    <section id="noticias">
+      <h2 class="section-title">Últimas Notícias</h2>
+      
+      
+      <!-- Posts Grid -->
+      <div class="news-grid" id="news-container">
+        <!-- Posts dinâmicos -->
+        <div class="news-card" *ngFor="let post of posts">
+          <img src="https://storage.googleapis.com/a1aa/image/KwiKJ8PWtBGnO39cgbZHQDwpxrY-ZzMEcKTONLLCjlM.jpg" alt="Imagem do post" class="news-image">
+          <div class="news-content">
+            <span class="news-category">Blog</span>
+            <h3 class="news-title">{{ post.title }}</h3>
+            <p class="news-excerpt">{{ post.content }}</p>
+            <div class="news-meta">
+              <span>{{ formatDate(post.createdAt) }}</span>
+              <span><i class="far fa-user"></i> {{ post.author }}</span>
+            </div>
+            
+            <!-- Admin Actions -->
+            <div *ngIf="isAuthenticated" class="admin-actions">
+              <button class="edit-btn" (click)="editPost(post)">
+                <i class="fas fa-edit"></i>
+              </button>
+              <button class="delete-btn" (click)="deletePost(post)">
+                <i class="fas fa-trash"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Notícias estáticas como exemplo -->
+        <div class="news-card">
+          <img src="https://storage.googleapis.com/a1aa/image/KwiKJ8PWtBGnO39cgbZHQDwpxrY-ZzMEcKTONLLCjlM.jpg" alt="Notícia de Futebol" class="news-image">
+          <div class="news-content">
+            <span class="news-category">Futebol</span>
+            <h3 class="news-title">Semifinais da Liga dos Campeões definidas</h3>
+            <p class="news-excerpt">Confira os confrontos das semifinais da maior competição de clubes do mundo e as chances de cada equipe.</p>
+            <div class="news-meta">
+              <span>5 de Abril, 2025</span>
+              <span><i class="far fa-comment"></i> 24</span>
+            </div>
+          </div>
+        </div>
+        
+        <div class="news-card">
+          <img src="https://storage.googleapis.com/a1aa/image/0qjEwucqvYRWEuqGlP9vnkQLWlTMFoNn4sIcw9EWL6I.jpg" alt="Notícia de Basquete" class="news-image">
+          <div class="news-content">
+            <span class="news-category">Basquete</span>
+            <h3 class="news-title">NBA: Lakers vencem e garantem vaga nos playoffs</h3>
+            <p class="news-excerpt">Time de Los Angeles conquista vitória importante e garante classificação para a próxima fase da competição.</p>
+            <div class="news-meta">
+              <span>4 de Abril, 2025</span>
+              <span><i class="far fa-comment"></i> 18</span>
+            </div>
+          </div>
+        </div>
+        
+        <div class="news-card">
+          <img src="https://storage.googleapis.com/a1aa/image/9gtzA7ZISIlza_kGRtNB-CKzZYMgb1suvnqVLNtoh9U.jpg" alt="Notícia de Vôlei" class="news-image">
+          <div class="news-content">
+            <span class="news-category">Vôlei</span>
+            <h3 class="news-title">Seleção brasileira feminina anuncia nova comissão técnica</h3>
+            <p class="news-excerpt">Após campanha decepcionante no último mundial, seleção passa por reformulação visando próximos desafios.</p>
+            <div class="news-meta">
+              <span>3 de Abril, 2025</span>
+              <span><i class="far fa-comment"></i> 12</span>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Notícias adicionais (inicialmente ocultas) -->
+        <div class="news-card hidden-content">
+          <img src="https://storage.googleapis.com/a1aa/image/5sOvAxNtiQGXoeU_ru5YesRagG-MYMkaMD459RTiBhw.jpg" alt="Notícia de Tênis" class="news-image">
+          <div class="news-content">
+            <span class="news-category">Tênis</span>
+            <h3 class="news-title">Tenista brasileiro avança às quartas de Roland Garros</h3>
+            <p class="news-excerpt">Em sua melhor campanha da carreira, brasileiro surpreende e elimina cabeça de chave da competição.</p>
+            <div class="news-meta">
+              <span>2 de Abril, 2025</span>
+              <span><i class="far fa-comment"></i> 9</span>
+            </div>
+          </div>
+        </div>
+        
+        <div class="news-card hidden-content">
+          <img src="https://storage.googleapis.com/a1aa/image/BNOzREb1uhBJ9WzbMjMmIoJ1uj3yXvq6Z2KN9wjOiw0.jpg" alt="Notícia de MMA" class="news-image">
+          <div class="news-content">
+            <span class="news-category">MMA</span>
+            <h3 class="news-title">Brasileiro defende cinturão em evento histórico</h3>
+            <p class="news-excerpt">Lutador brasileiro se prepara para defender título mundial pela terceira vez consecutiva.</p>
+            <div class="news-meta">
+              <span>1 de Abril, 2025</span>
+              <span><i class="far fa-comment"></i> 31</span>
+            </div>
+          </div>
+        </div>
+        
+        <div class="news-card hidden-content">
+          <img src="https://storage.googleapis.com/a1aa/image/KwiKJ8PWtBGnO39cgbZHQDwpxrY-ZzMEcKTONLLCjlM.jpg" alt="Notícia de Formula 1" class="news-image">
+          <div class="news-content">
+            <span class="news-category">Fórmula 1</span>
+            <h3 class="news-title">GP do Brasil promete emoção na disputa pelo título</h3>
+            <p class="news-excerpt">Interlagos pode ser palco decisivo na acirrada disputa pelo campeonato mundial de pilotos.</p>
+            <div class="news-meta">
+              <span>31 de Março, 2025</span>
+              <span><i class="far fa-comment"></i> 27</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div style="text-align: center; margin-bottom: 50px;">
+        <a href="#" class="btn" id="load-more" (click)="loadMoreNews($event)">Ver Mais Notícias <span class="loading"></span></a>
+      </div>
+    </section>
     
-    <div class="posts-container">
-      <h2>Posts Recentes</h2>
-      
-      <div *ngIf="isLoading" class="loading-container">
-        <ion-spinner></ion-spinner>
-        <p>Carregando posts...</p>
+    <!-- GitHub Projects Section -->
+    <section class="github-section" id="projetos">
+      <div class="container">
+        <h2 class="section-title">Meus Projetos no GitHub</h2>
+        <div class="projects-grid">
+          <!-- Projeto 1 -->
+          <div class="project-card">
+            <div class="project-icon">
+              <i class="fas fa-user"></i>
+            </div>
+            <h3 class="project-title">Sobre Mim</h3>
+            <p class="project-description">
+            </p>Portofolio aprendido no curso sobre html e JavaScript,Projeto iniciante que posteriomente tera um upgrad de funcionalidades.
+            <a href="https://github.com/Marialinaa/Portofolio" class="project-link" target="_blank">
+              Ver no GitHub <i class="fas fa-external-link-alt"></i>
+            </a>
+          </div>
+          
+         
+          <!-- Projeto 2 -->
+          <div class="project-card">
+            <div class="project-icon">
+              <i class="fas fa-database"></i>
+            </div>
+            <h3 class="project-title">Sistema de Gerenciamento com CRUD</h3>
+            <p class="project-description">
+              Projeto desenvolvido em Angular com Ionic, implementando um sistema de gerenciamento completo com funcionalidades de CRUD.
+            </p>
+            <a href="https://github.com/Marialinaa/SistemaGerenciamentoCRUD" class="project-link" target="_blank">
+              Ver no GitHub <i class="fas fa-external-link-alt"></i>
+            </a>
+          </div>
+
+           <!-- Projeto 3 -->
+           <div class="project-card">
+            <div class="project-icon">
+              <i class="fas fa-code"></i>
+            </div>
+            <h3 class="project-title">Novos Projeto</h3>
+            <p class="project-description">Confira os novos projetos.</p>
+            <a href="https://github.com/Marialinaa?tab=repositories" class="project-link" target="_blank">
+              Ver no GitHub <i class="fas fa-external-link-alt"></i>
+            </a>
+          </div>
+     
+        
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <!-- Footer com layout atualizado -->
+  <footer id="contato">
+    <div class="container footer-container">
+      <div class="footer-column">
+        <h3>Sobre Nós</h3>
+        <p>Gol de Placa é um blog dedicado ao mundo dos esportes, trazendo notícias, análises e estatísticas para os fãs mais apaixonados.</p>
+        <p>Trabalhamos para oferecer conteúdo de qualidade e informação precisa sobre todas as modalidades esportivas.</p>
       </div>
       
-      <div *ngIf="!isLoading && posts.length === 0" class="no-posts">
-        <p>Nenhum post encontrado.</p>
+      <div class="footer-column">
+        <h3>Links Rápidos</h3>
+        <ul>
+          <li><a href="#inicio">Início</a></li>
+          <li><a href="#noticias">Notícias</a></li>
+          <li><a href="#projetos">Projetos GitHub</a></li>
+          <li><a href="#sobre">Sobre</a></li>
+          <li><a href="#contato">Contato</a></li>
+        </ul>
       </div>
       
-      <ion-card *ngFor="let post of posts">
-        <ion-card-header>
-          <ion-card-title>{{ post.title }}</ion-card-title>
-          <ion-card-subtitle>
-            Por {{ post.author }} em {{ formatDate(post.createdAt) }}
-          </ion-card-subtitle>
-        </ion-card-header>
+      <div class="footer-column">
+        <h3>Contato</h3>
+        <p><i class="fas fa-envelope"></i> maria.lina149&#64;gmail.com</p>
+        <p><i class="fas fa-phone"></i> (37) 999433025</p>
+        <p><i class="fas fa-map-marker-alt"></i> Minas gerais, Brasil</p>
         
-        <ion-card-content>
-          <p>{{ post.content }}</p>
-        </ion-card-content>
-        
-        <ion-footer *ngIf="isAuthenticated">
-          <ion-toolbar>
-            <ion-buttons slot="end">
-              <ion-button (click)="editPost(post)" color="primary">
-                <ion-icon slot="icon-only" name="pencil-outline"></ion-icon>
-              </ion-button>
-              <ion-button (click)="deletePost(post)" color="danger">
-                <ion-icon slot="icon-only" name="trash-outline"></ion-icon>
-              </ion-button>
-            </ion-buttons>
-          </ion-toolbar>
-        </ion-footer>
-      </ion-card>
+        <h3 class="social-title">Redes Sociais</h3>
+        <div class="social-links">
+          <a href="https://api.whatsapp.com/send?phone=5537999433025" target="_blank"><i class="fab fa-whatsapp"></i></a>
+          <a href="https://instagram.com/Marialinaa9" target="_blank"><i class="fab fa-instagram"></i></a>
+          <a href="https://github.com/Marialinaa" target="_blank"><i class="fab fa-github"></i></a>
+        </div>
+      </div>
+      
+      <div class="footer-column">
+        <h3>Newsletter</h3>
+        <p>Inscreva-se para receber as últimas notícias e atualizações diretamente no seu e-mail.</p>
+        <form class="newsletter-form">
+          <ion-item>
+            <ion-input type="email" placeholder="Seu e-mail"></ion-input>
+          </ion-item>
+          <ion-button expand="block">Inscrever-se</ion-button>
+        </form>
+      </div>
     </div>
+    
+    <div class="footer-bottom container">
+      <p>&copy; 2025 Gol de Placa - Blog Esportivo.</p>
+    </div>
+  </footer>
+
+  <!-- Notification -->
+  <div class="notification" id="notification">
+    Novas notícias carregadas com sucesso!
   </div>
 </ion-content>

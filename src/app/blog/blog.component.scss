@@ -1,10 +1,34 @@
+// Variáveis do tema esportivo
+:root {
+  --primary: #1e88e5;
+  --secondary: #ff6f00;
+  --dark: #263238;
+  --light: #f5f5f5;
+  --accent: #43a047;
+}
+
+// Variáveis
+$bg-color: #1a202c;
+$primary-color: #f6e05e;
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+// Estilos básicos do Ionic
 ion-header {
-  background-color: #f8f9fa;
+  background-color: transparent;
 }
 
 ion-toolbar {
-  --background: #3880ff;
-  color: white;
+  --background: linear-gradient(135deg, var(--primary), #1565c0);
+  --color: white;
+  --padding-top: 10px;
+  --padding-bottom: 10px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
 }
 
 ion-title {
@@ -13,6 +37,12 @@ ion-title {
 
 ion-content {
   padding: 16px;
+  --background: #f0f0f0;
+  color: #2d3748;
+  --padding-start: 0;
+  --padding-end: 0;
+  --padding-top: 0;
+  --padding-bottom: 0;
 }
 
 ion-item {
@@ -24,6 +54,14 @@ ion-item {
   --inner-padding-end: 0;
 }
 
+ion-footer {
+  --background: #2b6cb0;
+  --color: white;
+  text-align: center;
+  padding: 15px 0;
+}
+
+// Estilos do blog
 .blog-container {
   max-width: 800px;
   margin: 0 auto;
@@ -39,14 +77,28 @@ ion-item {
 
 .post-form {
   background-color: white;
-  border-radius: 10px;
-  padding: 20px;
-  margin-bottom: 30px;
-  box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+  padding: 25px;
+  margin: 30px 0;
+  box-shadow: 0 3px 10px rgba(0,0,0,0.1);
   
   h2 {
-    color: var(--ion-color-primary);
-    margin-top: 0;
+    color: var(--primary);
+    margin-bottom: 20px;
+    font-weight: 600;
+  }
+
+  ion-item {
+    --background: transparent;
+    --border-color: #ddd;
+    --border-radius: 4px;
+    margin-bottom: 20px;
+  }
+
+  .button-group {
+    display: flex;
+    gap: 15px;
+    margin-top: 20px;
   }
 }
 
@@ -92,20 +144,698 @@ ion-item {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 30px 0;
+  padding: 40px 0;
   
   p {
-    margin-top: 10px;
-    color: var(--ion-color-medium);
+    margin-top: 15px;
+    color: #555;
   }
 }
 
 .no-posts {
   text-align: center;
-  padding: 20px;
-  color: var(--ion-color-medium);
+  padding: 30px;
   background-color: #f8f8f8;
   border-radius: 8px;
+  color: #555;
+  margin-bottom: 30px;
+}
+
+// Layout básico
+body {
+  background-color: #f0f0f0;
+  color: var(--dark);
+  line-height: 1.6;
+}
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 20px;
+}
+
+// Header
+header {
+  background: linear-gradient(135deg, var(--primary), #1565c0);
+  color: white;
+  padding: 20px 0;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+.header-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  
+  h1 {
+    font-size: 28px;
+    font-weight: 700;
+    margin-left: 10px;
+  }
+  
+  i {
+    font-size: 32px;
+    color: var(--secondary);
+  }
+}
+
+nav ul {
+  display: flex;
+  list-style: none;
+  
+  li {
+    margin-left: 20px;
+    
+    a {
+      color: white;
+      text-decoration: none;
+      font-weight: 500;
+      transition: color 0.3s;
+      
+      &:hover {
+        color: var(--secondary);
+      }
+    }
+  }
+}
+
+// Hero Section
+.hero {
+  position: relative;
+  height: 400px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  background-image: url('https://storage.googleapis.com/a1aa/image/BNOzREb1uhBJ9WzbMjMmIoJ1uj3yXvq6Z2KN9wjOiw0.jpg');
+  background-size: cover;
+  background-position: center;
+  
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+  }
+  
+  .hero-content {
+    position: relative;
+    z-index: 10;
+    color: white;
+    max-width: 800px;
+    padding: 0 20px;
+    
+    h2 {
+      font-size: 48px;
+      margin-bottom: 20px;
+      text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+    }
+    
+    p {
+      font-size: 18px;
+      margin-bottom: 30px;
+    }
+    
+    ion-button {
+      --background: #f6e05e;
+      --color: #2d3748;
+      font-weight: bold;
+      max-width: 300px;
+      margin: 0 auto;
+    }
+  }
+}
+
+// Buttons
+.btn {
+  display: inline-block;
+  padding: 12px 30px;
+  background-color: var(--secondary);
+  color: white;
+  border: none;
+  border-radius: 4px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s;
+  text-decoration: none;
+  
+  &:hover {
+    background-color: #e65100;
+    transform: translateY(-2px);
+  }
+  
+  &.outline {
+    background-color: transparent;
+    border: 1px solid var(--secondary);
+    color: var(--secondary);
+    
+    &:hover {
+      background-color: rgba(255, 111, 0, 0.1);
+    }
+  }
+  
+  &:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
+    transform: none;
+  }
+}
+
+// Section titles
+.section-title {
+  color: #2b6cb0;
+  font-size: 32px;
+  font-weight: bold;
+  text-align: center;
+  margin: 40px 0 30px;
+  position: relative;
+  
+  &::after {
+    content: '';
+    display: block;
+    width: 80px;
+    height: 4px;
+    background-color: #f6e05e;
+    margin: 15px auto;
+  }
+}
+
+// News grid
+.news-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+  gap: 25px;
+  margin-bottom: 50px;
+}
+
+.news-card {
+  background-color: white;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+  transition: transform 0.3s;
+  
+  &:hover {
+    transform: translateY(-5px);
+  }
+  
+  .news-image {
+    height: 200px;
+    width: 100%;
+    object-fit: cover;
+  }
+  
+  .news-content {
+    padding: 20px;
+  }
+  
+  .news-category {
+    display: inline-block;
+    background-color: #2b6cb0;
+    color: white;
+    padding: 5px 10px;
+    border-radius: 4px;
+    font-size: 14px;
+    margin-bottom: 10px;
+  }
+  
+  .news-title {
+    font-size: 22px;
+    margin-bottom: 10px;
+    color: #2d3748;
+  }
+  
+  .news-excerpt {
+    color: #555;
+    margin-bottom: 15px;
+  }
+  
+  .news-meta {
+    display: flex;
+    justify-content: space-between;
+    color: #777;
+    font-size: 14px;
+  }
+}
+
+.admin-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 15px;
+  
+  button {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 16px;
+    padding: 5px 10px;
+    border-radius: 4px;
+    transition: all 0.2s;
+    
+    &.edit-btn {
+      color: var(--primary);
+      
+      &:hover {
+        background: rgba(30, 136, 229, 0.1);
+      }
+    }
+    
+    &.delete-btn {
+      color: #f44336;
+      
+      &:hover {
+        background: rgba(244, 67, 54, 0.1);
+      }
+    }
+  }
+}
+
+// GitHub Projects Section - Versão final consolidada
+.github-section {
+  background-color: var(--dark) !important;
+  padding: 60px 0 !important;
+  color: white !important;
+  margin: 0 !important;
+  width: 100% !important;
+  box-shadow: none !important;
+  position: relative;
+  margin-top: 30px !important;
+  margin-bottom: 50px !important;
+  
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 15%;
+    right: 15%;
+    height: 1px;
+    background: transparent;
+    border-top: 1px solid rgba(0, 0, 0, 0.1);
+    width: 70%;
+    margin: 0 auto;
+  }
+  
+  &::after {
+    content: '';
+    position: absolute;
+    bottom: -20px;
+    left: 10%;
+    right: 10%;
+    height: 1px;
+    background: rgba(0, 4, 255, 0.05);
+    width: 80%;
+    margin: 0 auto;
+  }
+  
+  .section-title {
+    color: white !important;
+    font-weight: bold !important;
+    position: relative !important;
+    z-index: 2 !important;
+    
+    &::after {
+      content: '' !important;
+      display: block !important;
+      width: 80px !important;
+      height: 4px !important;
+      background-color: var(--secondary) !important;
+      margin: 15px auto !important;
+      position: relative !important;
+      z-index: 2 !important;
+    }
+  }
+}
+
+// Garantindo alta especificidade para GitHub Projects
+:host ::ng-deep .github-section,
+.github-section,
+ion-content .github-section,
+section.github-section,
+div.container section.github-section {
+  background-color: var(--dark) !important;
+  color: white !important;
+  padding: 60px 0 !important;
+  margin: 0 !important;
+  width: 100% !important;
+  box-shadow: none !important;
+}
+
+:host ::ng-deep section.github-section, 
+section.github-section#projetos, 
+.container section.github-section {
+  margin-bottom: 60px !important;
+}
+
+.projects-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 25px;
+  margin: 0 auto;
+}
+
+.project-card {
+  background-color: rgba(255,255,255,0.1);
+  border-radius: 8px;
+  padding: 25px;
+  transition: all 0.3s;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  
+  &:hover {
+    background-color: rgba(255,255,255,0.2);
+    transform: translateY(-5px);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+  }
+  
+  .project-icon {
+    font-size: 40px;
+    color: var(--secondary);
+    margin-bottom: 15px;
+  }
+  
+  .project-title {
+    font-size: 22px;
+    margin-bottom: 10px;
+    color: white;
+  }
+  
+  .project-description {
+    color: #ccc;
+    margin-bottom: 20px;
+    flex-grow: 1;
+  }
+  
+  .project-link {
+    color: var(--secondary);
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    font-weight: 500;
+    width: fit-content;
+    margin-top: auto;
+    
+    i {
+      margin-left: 5px;
+    }
+    
+    &:hover {
+      color: white;
+    }
+  }
+}
+
+// Garantir alta especificidade para cards de projeto
+:host ::ng-deep .project-card,
+.github-section .project-card {
+  background-color: rgba(255,255,255,0.1) !important;
+  border-radius: 8px !important;
+  padding: 25px !important;
+  transition: all 0.3s !important;
+}
+
+:host ::ng-deep .project-card:hover,
+.github-section .project-card:hover {
+  background-color: rgba(255,255,255,0.2) !important;
+  transform: translateY(-5px) !important;
+}
+
+:host ::ng-deep .project-title,
+.github-section .project-title {
+  color: white !important;
+  font-size: 22px !important;
+}
+
+:host ::ng-deep .project-description,
+.github-section .project-description {
+  color: #ccc !important;
+}
+
+:host ::ng-deep .project-link:hover,
+.github-section .project-link:hover {
+  color: white !important;
+}
+
+// Footer - Versão consolidada
+footer {
+  background-color: var(--primary) !important;
+  color: white !important;
+  padding: 40px 0 20px !important;
+  position: relative;
+  width: 100%;
+  z-index: 10;
+  margin-top: 40px;
+}
+
+// Garantir alta especificidade ao footer
+:host ::ng-deep footer,
+footer,
+ion-content footer,
+footer#contato {
+  background-color: var(--primary) !important;
+  color: white !important;
+  padding: 40px 0 20px !important;
+  width: 100% !important;
+  position: relative !important;
+  z-index: 10 !important;
+  margin-top: 40px !important;
+}
+
+.footer-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 30px;
+  margin-bottom: 30px;
+}
+
+.footer-column {
+  h3 {
+    font-size: 20px;
+    margin-bottom: 20px;
+    position: relative;
+    
+    &::after {
+      content: '';
+      display: block;
+      width: 40px;
+      height: 3px;
+      background-color: var(--secondary);
+      margin-top: 10px;
+    }
+  }
+  
+  p {
+    margin-bottom: 15px;
+  }
+  
+  ul {
+    list-style: none;
+    padding: 0;
+    
+    li {
+      margin-bottom: 10px;
+      
+      a {
+        color: white;
+        text-decoration: none;
+        transition: color 0.3s;
+        
+        &:hover {
+          color: var(--secondary);
+          text-decoration: underline;
+        }
+      }
+    }
+  }
+  
+  i {
+    margin-right: 10px;
+  }
+}
+
+.social-title {
+  margin-top: 20px;
+}
+
+.social-links {
+  display: flex;
+  gap: 15px;
+  flex-wrap: wrap;
+  
+  a {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    background-color: rgba(255,255,255,0.1);
+    border-radius: 50%;
+    color: white;
+    text-decoration: none;
+    transition: all 0.3s;
+    
+    &:hover {
+      background-color: var(--secondary);
+      transform: translateY(-3px);
+    }
+  }
+}
+
+.newsletter-form {
+  ion-item {
+    --background: rgba(255, 255, 255, 0.1);
+    --color: white;
+    --border-radius: 4px;
+    margin-bottom: 10px;
+  }
+  
+  ion-button {
+    --background: var(--secondary);
+    --color: white;
+  }
+}
+
+.footer-bottom {
+  text-align: center;
+  padding-top: 20px;
+  border-top: 1px solid rgba(255,255,255,0.1);
+}
+
+// About Section
+.about-section {
+  padding: 50px 0;
+  background-color: var(--light);
+}
+
+.about-content {
+  max-width: 800px;
+  margin: 0 auto;
+  text-align: center;
+  font-size: 18px;
+  line-height: 1.8;
+  
+  p {
+    margin-bottom: 20px;
+  }
+}
+
+// Utilities
+.hidden-content {
+  display: none;
+}
+
+.loading {
+  display: inline-block;
+  width: 30px;
+  height: 30px;
+  border: 3px solid rgba(255, 255, 255, .3);
+  border-radius: 50%;
+  border-top-color: white;
+  animation: spin 1s ease-in-out infinite;
+  margin-left: 10px;
+}
+
+.loading-active .loading {
+  display: inline-block;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.notification {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  background-color: var(--accent, #43a047);
+  color: white;
+  padding: 15px 20px;
+  border-radius: 4px;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
+  transform: translateY(100px);
+  opacity: 0;
+  transition: all 0.3s;
+  z-index: 1000;
+  
+  &.show {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+// Botão voltar para Home
+.back-home-btn {
+  display: flex;
+  align-items: center;
+  padding: 8px 12px;
+  border-radius: 4px;
+  background-color: rgba(255, 255, 255, 0.15);
+  transition: background-color 0.3s ease;
+  margin-right: 10px;
+  
+  &:hover {
+    background-color: rgba(255, 255, 255, 0.3);
+  }
+  
+  ion-icon {
+    margin-right: 6px;
+    font-size: 18px;
+  }
+}
+
+.back-text {
+  font-size: 14px;
+  font-weight: 500;
+}
+
+// Responsividade
+@media (max-width: 768px) {
+  .header-container {
+    flex-direction: column;
+    text-align: center;
+  }
+  
+  nav ul {
+    margin-top: 20px;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+  
+  nav ul li {
+    margin: 5px 10px;
+  }
+  
+  .hero-content h2 {
+    font-size: 36px;
+  }
+  
+  .hero-content p {
+    font-size: 16px;
+  }
+  
+  .section-title {
+    font-size: 28px;
+  }
+  
+  .projects-grid {
+    grid-template-columns: 1fr;
+    max-width: 400px;
+    margin: 0 auto;
+  }
+  
+  .news-grid {
+    grid-template-columns: 1fr;
+  }
 }
 
 @media (max-width: 600px) {
@@ -116,4 +846,56 @@ ion-item {
   .post-form {
     padding: 15px;
   }
+}
+
+@media (max-width: 576px) {
+  .hero-content h2 {
+    font-size: 28px;
+  }
+  
+  .back-text {
+    display: none;
+  }
+  
+  .back-home-btn {
+    padding: 8px;
+  }
+  
+  .project-card {
+    padding: 20px;
+  }
+  
+  .project-title {
+    font-size: 20px;
+  }
+  
+  .footer-column h3 {
+    font-size: 18px;
+  }
+}
+
+@media (max-width: 480px) {
+  .social-links {
+    gap: 10px;
+  }
+  
+  .social-links a {
+    width: 35px;
+    height: 35px;
+  }
+  
+  .footer-column h3::after {
+    width: 30px;
+  }
+}
+
+// Ajustes de exibição
+html, body {
+  overflow-x: hidden;
+  scroll-behavior: smooth;
+}
+
+:host {
+  display: block;
+  width: 100%;
 }

@@ -1,9 +1,9 @@
 <ion-header>
   <ion-toolbar>
-    <ion-title>Registro</ion-title>
     <ion-buttons slot="start">
-      <ion-back-button defaultHref="/login"></ion-back-button>
+      <ion-back-button defaultHref="/home"></ion-back-button>
     </ion-buttons>
+    <ion-title>Registre-se</ion-title>
   </ion-toolbar>
 </ion-header>
 
@@ -11,11 +11,12 @@
   <div class="register-container">
     <div class="register-form">
       <h1>Criar Conta</h1>
-      <p>Preencha o formulário para criar sua conta</p>
+      <p>Preencha o formulário abaixo para criar sua conta</p>
       
       <form [formGroup]="registerForm" (ngSubmit)="onSubmit()">
         <ion-item>
-          <ion-label position="floating">Nome</ion-label>
+          <ion-icon name="person-outline" slot="start"></ion-icon>
+          <ion-label position="floating">Nome Completo</ion-label>
           <ion-input type="text" formControlName="name"></ion-input>
           <ion-note slot="error" *ngIf="name?.invalid && (name?.dirty || name?.touched)">
             <span *ngIf="name?.errors?.['required']">Nome é obrigatório</span>
@@ -24,6 +25,7 @@
         </ion-item>
         
         <ion-item>
+          <ion-icon name="mail-outline" slot="start"></ion-icon>
           <ion-label position="floating">Email</ion-label>
           <ion-input type="email" formControlName="email"></ion-input>
           <ion-note slot="error" *ngIf="email?.invalid && (email?.dirty || email?.touched)">
@@ -33,6 +35,7 @@
         </ion-item>
         
         <ion-item>
+          <ion-icon name="lock-closed" slot="start"></ion-icon>
           <ion-label position="floating">Senha</ion-label>
           <ion-input [type]="showPassword ? 'text' : 'password'" formControlName="password"></ion-input>
           <ion-button fill="clear" slot="end" (click)="togglePasswordVisibility()">
@@ -41,21 +44,64 @@
           <ion-note slot="error" *ngIf="password?.invalid && (password?.dirty || password?.touched)">
             <span *ngIf="password?.errors?.['required']">Senha é obrigatória</span>
             <span *ngIf="password?.errors?.['minlength']">Senha deve ter pelo menos 6 caracteres</span>
-            <span *ngIf="password?.errors?.['passwordStrength']">Senha deve conter letras maiúsculas, minúsculas, números e caracteres especiais</span>
+            <span *ngIf="password?.errors?.['passwordStrength']">Escolha uma senha mais forte</span>
           </ion-note>
         </ion-item>
         
+        <!-- Indicador de força da senha -->
+        <div class="password-strength" *ngIf="password?.value">
+          <p>Força da senha:</p>
+          <div class="strength-meter">
+            <div class="strength-segment" [ngClass]="{'active': passwordStrength >= 1}" [style.--strength-color]="getStrengthColor()"></div>
+            <div class="strength-segment" [ngClass]="{'active': passwordStrength >= 2}" [style.--strength-color]="getStrengthColor()"></div>
+            <div class="strength-segment" [ngClass]="{'active': passwordStrength >= 3}" [style.--strength-color]="getStrengthColor()"></div>
+            <div class="strength-segment" [ngClass]="{'active': passwordStrength >= 4}" [style.--strength-color]="getStrengthColor()"></div>
+            <div class="strength-segment" [ngClass]="{'active': passwordStrength >= 5}" [style.--strength-color]="getStrengthColor()"></div>
+            <div class="strength-segment" [ngClass]="{'active': passwordStrength >= 6}" [style.--strength-color]="getStrengthColor()"></div>
+          </div>
+          <div class="strength-text" 
+               [ngClass]="{'weak': passwordStrength <= 2, 
+                          'medium': passwordStrength > 2 && passwordStrength <= 4,
+                          'strong': passwordStrength === 5,
+                          'very-strong': passwordStrength === 6}">
+            {{ passwordFeedback }}
+          </div>
+        </div>
+        
         <ion-item>
-          <ion-label position="floating">Confirmar senha</ion-label>
+          <ion-icon name="lock-closed" slot="start"></ion-icon>
+          <ion-label position="floating">Confirmar Senha</ion-label>
           <ion-input [type]="showPassword ? 'text' : 'password'" formControlName="confirmPassword"></ion-input>
-          <ion-note slot="error" *ngIf="confirmPassword?.invalid && (confirmPassword?.dirty || confirmPassword?.touched)">
-            <span *ngIf="confirmPassword?.errors?.['required']">Confirmação de senha é obrigatória</span>
-          </ion-note>
-          <ion-note slot="error" *ngIf="registerForm.hasError('mismatch') && confirmPassword?.touched">
+          <ion-note slot="error" *ngIf="registerForm.errors?.['passwordMismatch'] && (confirmPassword?.dirty || confirmPassword?.touched)">
             As senhas não coincidem
           </ion-note>
         </ion-item>
+        
+        <!-- Termos e condições -->
+        <div class="terms-privacy">
+          <ion-item lines="none" class="checkbox-item">
+            <ion-checkbox formControlName="termsAccepted" slot="start"></ion-checkbox>
+            <ion-label class="terms-label">
+              Concordo com os <a href="#">Termos de Serviço</a> e <a href="#">Política de Privacidade</a>
+            </ion-label>
+          </ion-item>
+          <div class="error-terms" *ngIf="termsAccepted?.invalid && (termsAccepted?.dirty || termsAccepted?.touched)">
+            Você deve aceitar os termos para continuar
+          </div>
+        </div>
 
+        <!-- Problemas no formulário -->
+        <div class="validation-feedback" *ngIf="registerForm.invalid && registerForm.touched">
+          <p>Por favor, corrija os seguintes problemas:</p>
+          <ul>
+            <li *ngIf="name?.invalid">Nome completo válido</li>
+            <li *ngIf="email?.invalid">Email válido</li>
+            <li *ngIf="password?.invalid">Senha forte</li>
+            <li *ngIf="registerForm.errors?.['passwordMismatch']">Confirmação de senha correta</li>
+            <li *ngIf="termsAccepted?.invalid">Aceitação dos termos</li>
+          </ul>
+        </div>
+        
         <div class="error-message" *ngIf="errorMessage">{{ errorMessage }}</div>
         
         <ion-button expand="block" type="submit" [disabled]="registerForm.invalid || isSubmitting">
@@ -64,7 +110,7 @@
         </ion-button>
         
         <div class="login-link">
-          <p>Já tem uma conta? <a (click)="navigateToLogin()">Faça login</a></p>
+          <p>Já tem uma conta? <a (click)="navigateToLogin()">Fazer login</a></p>
         </div>
       </form>
     </div>

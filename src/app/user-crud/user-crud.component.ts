@@ -106,19 +106,35 @@ export class UserCrudComponent implements OnInit {
       password: this.password?.value
     };
 
-    // No mundo real, aqui seria feito um update do usuário
-    // Como estamos simulando, vamos apenas criar um novo
-    this.dbService.createUser(userData).subscribe({
-      next: (user) => {
-        this.resetForm();
-        this.loadUsers();
-        this.isSubmitting = false;
-      },
-      error: (error) => {
-        this.showError(error.message || 'Erro ao processar usuário.');
-        this.isSubmitting = false;
-      }
-    });
+    if (this.editMode && this.currentUserId) {
+      // Modo de edição - atualizar usuário existente
+      this.dbService.updateUser(this.currentUserId, userData).subscribe({
+        next: (user) => {
+          this.showSuccess(`Usuário ${user.name} atualizado com sucesso!`);
+          this.resetForm();
+          this.loadUsers();
+          this.isSubmitting = false;
+        },
+        error: (error) => {
+          this.showError(error.message || 'Erro ao atualizar usuário.');
+          this.isSubmitting = false;
+        }
+      });
+    } else {
+      // Modo de criação - criar novo usuário
+      this.dbService.createUser(userData).subscribe({
+        next: (user) => {
+          this.showSuccess(`Usuário ${user.name} criado com sucesso!`);
+          this.resetForm();
+          this.loadUsers();
+          this.isSubmitting = false;
+        },
+        error: (error) => {
+          this.showError(error.message || 'Erro ao processar usuário.');
+          this.isSubmitting = false;
+        }
+      });
+    }
   }
 
   resetForm() {

@@ -1,4 +1,5 @@
 import { Routes } from '@angular/router';
+import { AuthGuard } from './guards/auth.guard';
 
 export const routes: Routes = [
   {
@@ -16,18 +17,16 @@ export const routes: Routes = [
   {
     path: 'blog',
     loadComponent: () => import('./blog/blog.component').then((m) => m.BlogComponent),
+    canActivate: [AuthGuard] // Proteção da rota com o guarda
   },
   {
     path: 'user-crud',
     loadComponent: () => import('./user-crud/user-crud.component').then((m) => m.UserCrudComponent),
+    canActivate: [AuthGuard] // Também protegendo o CRUD de usuários
   },
   {
     path: '',
     redirectTo: 'home',
     pathMatch: 'full',
-  },
-  {
-    path: '**',
-    redirectTo: 'home',
   },
 ];

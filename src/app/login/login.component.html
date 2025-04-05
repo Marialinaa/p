@@ -1,14 +1,40 @@
 <ion-header>
   <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/home"></ion-back-button>
+    </ion-buttons>
     <ion-title>Login</ion-title>
   </ion-toolbar>
 </ion-header>
 
 <ion-content>
+  <!-- Mensagem informativa do redirecionamento -->
+  <ion-card *ngIf="infoMessage" class="redirect-message">
+    <ion-card-content>
+      <ion-icon name="information-circle-outline"></ion-icon>
+      {{ infoMessage }}
+    </ion-card-content>
+  </ion-card>
+
   <div class="login-container">
     <div class="login-form">
       <h1>Login</h1>
       <p>Entre com suas credenciais para acessar o sistema</p>
+      
+      <div class="social-login">
+        <ion-button expand="block" color="primary" class="facebook-btn">
+          <ion-icon slot="start" name="logo-facebook"></ion-icon>
+          Entrar com Facebook
+        </ion-button>
+        <ion-button expand="block" color="danger" class="google-btn">
+          <ion-icon slot="start" name="logo-google"></ion-icon>
+          Entrar com Google
+        </ion-button>
+      </div>
+      
+      <div class="divider">
+        <span>ou</span>
+      </div>
       
       <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
         <ion-item>
@@ -31,32 +57,69 @@
           </ion-note>
         </ion-item>
         
+        <div class="forgot-remember-container">
+          <ion-item lines="none" class="remember-me">
+            <ion-checkbox formControlName="rememberMe" slot="start"></ion-checkbox>
+            <ion-label>Lembrar-me</ion-label>
+          </ion-item>
+          <a class="forgot-password" (click)="forgotPassword()">Esqueci minha senha</a>
+        </div>
+        
         <div class="captcha-container">
-          <canvas #captchaCanvas width="200" height="60"></canvas>
-          <ion-button fill="clear" (click)="generateCaptcha()">
+          <div class="captcha-wrapper">
+            <canvas #captchaCanvas width="200" height="60"></canvas>
+          </div>
+          <ion-button fill="clear" (click)="generateCaptcha()" title="Gerar novo código">
             <ion-icon name="refresh-outline"></ion-icon>
           </ion-button>
         </div>
         
         <ion-item>
-          <ion-label position="floating">Digite o código acima</ion-label>
-          <ion-input type="text" formControlName="captcha"></ion-input>
+          <ion-label position="floating">Digite o código numérico acima</ion-label>
+          <ion-input type="text" inputmode="numeric" pattern="[0-9]*" formControlName="captcha" autocomplete="off"></ion-input>
           <ion-note slot="error" *ngIf="captcha?.invalid && (captcha?.dirty || captcha?.touched)">
             <span *ngIf="captcha?.errors?.['required']">Código de verificação é obrigatório</span>
           </ion-note>
         </ion-item>
 
+        <!-- Para debug: remover em produção -->
+        <div class="captcha-help" *ngIf="errorMessage">
+          Dica: O código correto é "{{captchaText}}" (apenas para desenvolvimento)
+        </div>
+
         <div class="error-message" *ngIf="errorMessage">{{ errorMessage }}</div>
         
-        <ion-button expand="block" type="submit" [disabled]="loginForm.invalid || isSubmitting">
-          <ion-spinner name="crescent" *ngIf="isSubmitting"></ion-spinner>
-          <span *ngIf="!isSubmitting">Entrar</span>
-        </ion-button>
+        <!-- Dicas de login - remover em produção -->
+        <div class="login-help" *ngIf="!isSubmitting">
+          <p>Credenciais de teste:</p>
+          <ul>
+            <li>Email: teste&#64;email.com / Senha: 123456</li>
+            <li>Email: admin&#64;admin.com / Senha: admin123</li>
+          </ul>
+        </div>
+        
+        <div class="button-container">
+          <ion-button expand="block" type="submit" [disabled]="loginForm.invalid || isSubmitting">
+            <ion-spinner name="crescent" *ngIf="isSubmitting"></ion-spinner>
+            <span *ngIf="!isSubmitting">Entrar</span>
+          </ion-button>
+          
+          <ion-button expand="block" fill="outline" color="medium" routerLink="/home">
+            <ion-icon slot="start" name="home-outline"></ion-icon>
+            Voltar para Home
+          </ion-button>
+        </div>
         
         <div class="register-link">
           <p>Não tem uma conta? <a (click)="navigateToRegister()">Registre-se</a></p>
         </div>
       </form>
+      
+      <div class="security-tips">
+        <h3>Dicas de Segurança</h3>
+        <p><ion-icon name="lock-closed"></ion-icon> Nunca compartilhe sua senha</p>
+        <p><ion-icon name="shield"></ion-icon> Use senhas fortes e diferentes para cada serviço</p>
+      </div>
     </div>
   </div>
 </ion-content>

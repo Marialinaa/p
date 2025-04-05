@@ -73,23 +73,22 @@
       <ion-list *ngIf="!isLoading && users.length > 0">
         <ion-item-sliding *ngFor="let user of users">
           <ion-item>
-            <ion-avatar slot="start">
-              <img src="https://gravatar.com/avatar/{{ user.email | lowercase }}?d=identicon&s=100" alt="{{ user.name }}">
-            </ion-avatar>
             <ion-label>
               <h2>{{ user.name }}</h2>
               <p>{{ user.email }}</p>
-              <p class="created-at" *ngIf="user.createdAt">
-                Criado em: {{ user.createdAt | date:'dd/MM/yyyy HH:mm' }}
-              </p>
             </ion-label>
+            <ion-button slot="end" fill="clear" (click)="editUser(user)">
+              <ion-icon name="create-outline"></ion-icon>
+            </ion-button>
+            <ion-button slot="end" fill="clear" color="danger" (click)="deleteUser(user)">
+              <ion-icon name="trash-outline"></ion-icon>
+            </ion-button>
           </ion-item>
-          
           <ion-item-options side="end">
-            <ion-item-option (click)="editUser(user)" color="primary">
-              <ion-icon slot="icon-only" name="pencil-outline"></ion-icon>
+            <ion-item-option (click)="editUser(user)">
+              <ion-icon slot="icon-only" name="create-outline"></ion-icon>
             </ion-item-option>
-            <ion-item-option (click)="deleteUser(user)" color="danger">
+            <ion-item-option color="danger" (click)="deleteUser(user)">
               <ion-icon slot="icon-only" name="trash-outline"></ion-icon>
             </ion-item-option>
           </ion-item-options>
