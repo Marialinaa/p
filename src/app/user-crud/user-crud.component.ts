@@ -1,11 +1,14 @@
 import { Component, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup, Validators, AbstractControl, ValidatorFn } from '@angular/forms';
-import { IonicModule, AlertController } from '@ionic/angular';
+import { FormBuilder, FormGroup, Validators, AbstractControl, ValidatorFn, ReactiveFormsModule } from '@angular/forms';
+import { IonicModule, AlertController, ToastController, LoadingController } from '@ionic/angular';
 import { CommonModule } from '@angular/common';
-import { ReactiveFormsModule } from '@angular/forms';
-import { DatabaseService } from '../services/database.service';
+import { UserService } from '../services/user.service';
 import { User } from '../models/user.model';
 import { Router } from '@angular/router';
+import { AuthService } from '../services/auth.service';
+import { catchError, finalize } from 'rxjs/operators';
+import { Observable, of } from 'rxjs';
+import { MySqlService } from '../services/mysql.service';
 
 @Component({
   selector: 'app-user-crud',
@@ -22,203 +25,492 @@ export class UserCrudComponent implements OnInit {
   showPassword: boolean = false;
   editMode: boolean = false;
   currentUserId?: number;
+  isAdmin: boolean = false;
+  roles = [
+    { value: 'user', label: 'Usuário' },
+    { value: 'editor', label: 'Editor' },
+    { value: 'admin', label: 'Administrador' }
+  ];
+  loggedInUsers: User[] = []; // Nova propriedade para armazenar usuários logados
 
   constructor(
     private formBuilder: FormBuilder,
-    private dbService: DatabaseService,
+    private userService: UserService,
+    private authService: AuthService,
     private alertController: AlertController,
-    private router: Router
+    private toastController: ToastController,
+    private loadingController: LoadingController,
+    private router: Router,
+    private mysqlService: MySqlService // Adicionar MySqlService para garantir acesso direto ao banco
   ) {
     this.userForm = this.formBuilder.group({
       name: ['', [Validators.required, Validators.minLength(3)]],
       email: ['', [Validators.required, Validators.email]],
-      password: ['', [
-        Validators.required,
-        Validators.minLength(6),
-        this.createPasswordStrengthValidator()
-      ]]
+      password: ['', [this.createPasswordStrengthValidator()]],
+      role: ['user', [Validators.required]],
+      isActive: [true]
     });
   }
 
   ngOnInit() {
-    this.checkAuthStatus();
-    this.loadUsers();
-  }
-
-  checkAuthStatus() {
-    if (!this.dbService.isAuthenticated()) {
-      this.router.navigate(['/login']);
-    }
+    // Verificar se o usuário é administrador usando o AuthService
+    this.authService.isAdmin().subscribe(isAdmin => {
+      this.isAdmin = isAdmin;
+      
+      // Carregar usuários independentemente de ser admin ou não
+      this.loadUsers();
+      
+      // Carregar usuários logados atualmente
+      this.loadLoggedInUsers();
+      
+      // Obter o ID do usuário atual
+      this.authService.currentUser$.subscribe(user => {
+        if (user) {
+          this.currentUserId = user.id;
+        }
+      });
+    });
   }
 
   get name() { return this.userForm.get('name'); }
   get email() { return this.userForm.get('email'); }
   get password() { return this.userForm.get('password'); }
+  get role() { return this.userForm.get('role'); }
+  get isActive() { return this.userForm.get('isActive'); }
 
-  // Validador para verificar força da senha
   createPasswordStrengthValidator(): ValidatorFn {
     return (control: AbstractControl): {[key: string]: boolean} | null => {
       const value = control.value;
-      
-      if (!value) {
-        return null;
-      }
+      if (this.editMode && (!value || value.trim() === '')) return null;
+      if (!this.editMode && (!value || value.trim() === '')) return { required: true };
 
       const hasUpperCase = /[A-Z]+/.test(value);
       const hasLowerCase = /[a-z]+/.test(value);
       const hasNumeric = /[0-9]+/.test(value);
-      const hasSpecialChar = /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]+/.test(value);
+      const hasSpecialChar = /[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]+/.test(value);
+      const hasMinLength = value.length >= 8;
 
-      const passwordValid = hasUpperCase && hasLowerCase && hasNumeric && hasSpecialChar;
-
-      return !passwordValid ? { passwordStrength: true } : null;
-    }
+      return hasUpperCase && hasLowerCase && hasNumeric && hasSpecialChar && hasMinLength ? null : { passwordStrength: true };
+    };
   }
 
   togglePasswordVisibility() {
     this.showPassword = !this.showPassword;
   }
 
-  loadUsers() {
+  async loadUsers() {
+    const loading = await this.loadingController.create({ message: 'Carregando usuários...', spinner: 'crescent' });
+    await loading.present();
     this.isLoading = true;
-    this.dbService.getUsers().subscribe({
-      next: (users) => {
-        this.users = users;
+
+    // Acessar diretamente com MySqlService para garantir a comunicação com o banco
+    const query = "SELECT * FROM usuarios";
+    this.mysqlService.executeQuery(query).pipe(
+      finalize(() => {
         this.isLoading = false;
+        loading.dismiss();
+      })
+    ).subscribe({
+      next: (res: any[]) => {
+        console.log('Usuários carregados do banco:', res);
+        this.users = res.map(user => ({
+          id: user.id,
+          name: user.nome,
+          email: user.email,
+          role: user.tipo,
+          isActive: Boolean(user.ativo),
+          lastLogin: user.ultimo_login ? new Date(user.ultimo_login) : undefined
+        } as User));
       },
-      error: (error) => {
-        console.error('Erro ao carregar usuários:', error);
-        this.isLoading = false;
+      error: async (err: any) => {
+        console.error('Erro ao buscar usuários do banco:', err);
+        const toast = await this.toastController.create({
+          message: 'Erro ao carregar usuários do banco de dados.', 
+          duration: 3000, 
+          position: 'bottom', 
+          color: 'danger'
+        });
+        toast.present();
       }
     });
   }
 
-  onSubmit() {
-    if (this.userForm.invalid) {
-      return;
-    }
+  // Novo método para carregar usuários logados
+  async loadLoggedInUsers() {
+    const loading = await this.loadingController.create({ message: 'Carregando usuários logados...', spinner: 'crescent' });
+    await loading.present();
+
+    // Query para buscar usuários com lastLogin recente (últimas 24 horas)
+    const query = `
+      SELECT * FROM usuarios 
+      WHERE ultimo_login IS NOT NULL 
+      AND ultimo_login > DATE_SUB(NOW(), INTERVAL 24 HOUR)
+      ORDER BY ultimo_login DESC
+    `;
+
+    this.mysqlService.executeQuery(query).pipe(
+      finalize(() => loading.dismiss())
+    ).subscribe({
+      next: (res: any[]) => {
+        console.log('Usuários logados recentemente:', res);
+        this.loggedInUsers = res.map(user => ({
+          id: user.id,
+          name: user.nome,
+          email: user.email,
+          role: user.tipo,
+          isActive: Boolean(user.ativo),
+          lastLogin: user.ultimo_login ? new Date(user.ultimo_login) : undefined
+        } as User));
+      },
+      error: async (err: any) => {
+        console.error('Erro ao buscar usuários logados:', err);
+        const toast = await this.toastController.create({
+          message: 'Erro ao carregar usuários logados.', 
+          duration: 3000, 
+          position: 'bottom', 
+          color: 'danger'
+        });
+        toast.present();
+      }
+    });
+  }
+
+  async onSubmit() {
+    if (this.userForm.invalid) return;
 
     this.isSubmitting = true;
+    const loading = await this.loadingController.create({ 
+      message: this.editMode ? 'Atualizando usuário...' : 'Criando usuário...', 
+      spinner: 'crescent'
+    });
+    await loading.present();
 
     const userData = {
       name: this.name?.value,
       email: this.email?.value,
-      password: this.password?.value
+      password: this.password?.value,
+      role: this.role?.value,
+      isActive: this.isActive?.value
     };
 
+    const currentUser = JSON.parse(localStorage.getItem('current_user') || '{}');
+    
+    // Adicionar logs para debugging
+    console.log('Salvando dados do usuário no banco:', userData);
+    console.log('Modo de edição:', this.editMode);
+    console.log('ID atual (se em modo de edição):', this.currentUserId);
+
+    // Preparar a query SQL diretamente para garantir a atualização no banco
+    let query = '';
+    let params: any[] = [];
+
     if (this.editMode && this.currentUserId) {
-      // Modo de edição - atualizar usuário existente
-      this.dbService.updateUser(this.currentUserId, userData).subscribe({
-        next: (user) => {
-          this.showSuccess(`Usuário ${user.name} atualizado com sucesso!`);
+      console.log('Atualizando usuário existente com ID:', this.currentUserId);
+      
+      query = `
+        UPDATE usuarios 
+        SET nome = ?, 
+            email = ?, 
+            tipo = ?, 
+            ativo = ?, 
+            updated_at = NOW()
+      `;
+      
+      params = [
+        userData.name,
+        userData.email,
+        userData.role,
+        userData.isActive ? 1 : 0
+      ];
+      
+      // Se a senha for fornecida, atualizá-la também
+      if (userData.password && userData.password.trim() !== '') {
+        query += `, senha = ?`;
+        params.push(userData.password);
+      }
+      
+      query += ` WHERE id = ?`;
+      params.push(this.currentUserId);
+      
+      this.mysqlService.executeQuery(query, params).pipe(
+        finalize(() => { 
+          this.isSubmitting = false; 
+          loading.dismiss(); 
+        })
+      ).subscribe({
+        next: async (result) => {
+          console.log('Usuário atualizado no banco com sucesso:', result);
+          const toast = await this.toastController.create({ 
+            message: 'Usuário atualizado no banco de dados!', 
+            duration: 3000, 
+            position: 'bottom', 
+            color: 'success' 
+          });
+          toast.present();
           this.resetForm();
           this.loadUsers();
-          this.isSubmitting = false;
+          this.loadLoggedInUsers(); // Recarregar usuários logados após atualização
         },
-        error: (error) => {
-          this.showError(error.message || 'Erro ao atualizar usuário.');
-          this.isSubmitting = false;
+        error: async (err) => {
+          console.error('Erro ao atualizar usuário no banco:', err);
+          const alert = await this.alertController.create({ 
+            header: 'Erro no Banco de Dados', 
+            message: err.message || 'Erro ao atualizar usuário no banco de dados.', 
+            buttons: ['OK'] 
+          });
+          alert.present();
         }
       });
     } else {
-      // Modo de criação - criar novo usuário
-      this.dbService.createUser(userData).subscribe({
-        next: (user) => {
-          this.showSuccess(`Usuário ${user.name} criado com sucesso!`);
+      console.log('Criando novo usuário no banco');
+      
+      query = `
+        INSERT INTO usuarios (nome, email, senha, tipo, ativo, created_at)
+        VALUES (?, ?, ?, ?, ?, NOW())
+      `;
+      
+      params = [
+        userData.name,
+        userData.email,
+        userData.password,
+        userData.role,
+        userData.isActive ? 1 : 0
+      ];
+      
+      this.mysqlService.executeQuery(query, params).pipe(
+        finalize(() => { 
+          this.isSubmitting = false; 
+          loading.dismiss(); 
+        })
+      ).subscribe({
+        next: async (result) => {
+          console.log('Usuário criado no banco com sucesso:', result);
+          const toast = await this.toastController.create({ 
+            message: 'Usuário criado no banco de dados!', 
+            duration: 3000, 
+            position: 'bottom', 
+            color: 'success' 
+          });
+          toast.present();
           this.resetForm();
           this.loadUsers();
-          this.isSubmitting = false;
         },
-        error: (error) => {
-          this.showError(error.message || 'Erro ao processar usuário.');
-          this.isSubmitting = false;
+        error: async (err) => {
+          console.error('Erro ao criar usuário no banco:', err);
+          const alert = await this.alertController.create({ 
+            header: 'Erro no Banco de Dados', 
+            message: err.message || 'Erro ao criar usuário no banco de dados.', 
+            buttons: ['OK'] 
+          });
+          alert.present();
         }
       });
     }
   }
 
   resetForm() {
-    this.userForm.reset();
+    this.userForm.reset({ role: 'user', isActive: true });
     this.editMode = false;
     this.currentUserId = undefined;
-    
-    // No modo de edição, a senha não seria obrigatória
-    if (this.editMode) {
-      this.password?.setValidators(null);
-    } else {
-      this.password?.setValidators([
-        Validators.required,
-        Validators.minLength(6),
-        this.createPasswordStrengthValidator()
-      ]);
-    }
+    this.password?.setValidators(this.editMode ? null : [Validators.required, this.createPasswordStrengthValidator()]);
     this.password?.updateValueAndValidity();
   }
 
   editUser(user: User) {
     this.editMode = true;
     this.currentUserId = user.id;
-    this.userForm.patchValue({
-      name: user.name,
-      email: user.email,
-      // Não preenchemos a senha por segurança
-      password: ''
+    this.userForm.patchValue({ 
+      name: user.name, 
+      email: user.email, 
+      role: user.role, 
+      isActive: user.isActive, 
+      password: '' 
     });
-    
-    // Em um sistema real, poderíamos tornar a senha opcional no modo de edição
-    this.password?.setValidators([
-      Validators.minLength(6),
-      this.createPasswordStrengthValidator()
-    ]);
+    this.password?.setValidators([this.createPasswordStrengthValidator()]);
     this.password?.updateValueAndValidity();
   }
 
   async deleteUser(user: User) {
     const alert = await this.alertController.create({
       header: 'Confirmar exclusão',
-      message: `Tem certeza que deseja excluir o usuário "${user.name}"?`,
+      message: `Excluir usuário "${user.name}" do banco de dados?`,
       buttons: [
-        {
-          text: 'Cancelar',
-          role: 'cancel'
-        },
+        { text: 'Cancelar', role: 'cancel' },
         {
           text: 'Excluir',
           role: 'confirm',
-          handler: () => {
-            // Em um sistema real, aqui chamaríamos um método para excluir o usuário
-            // Como estamos simulando, vamos apenas recarregar a lista
-            setTimeout(() => {
-              this.loadUsers();
-            }, 500);
+          cssClass: 'danger',
+          handler: async () => {
+            const loading = await this.loadingController.create({ message: 'Excluindo...', spinner: 'crescent' });
+            await loading.present();
             
-            // Mostrar mensagem de sucesso
-            this.showSuccess(`Usuário ${user.name} excluído com sucesso!`);
+            // Executar query de exclusão diretamente no banco
+            const query = `DELETE FROM usuarios WHERE id = ?`;
+            this.mysqlService.executeQuery(query, [user.id]).pipe(
+              finalize(() => loading.dismiss())
+            ).subscribe({
+              next: async () => {
+                console.log(`Usuário ${user.name} excluído do banco com sucesso!`);
+                const toast = await this.toastController.create({ 
+                  message: `Usuário ${user.name} excluído do banco de dados!`, 
+                  duration: 3000, 
+                  position: 'bottom', 
+                  color: 'success' 
+                });
+                toast.present();
+                this.loadUsers();
+                this.loadLoggedInUsers(); // Recarregar usuários logados após exclusão
+              },
+              error: async (err: any) => {
+                console.error('Erro ao excluir usuário do banco:', err);
+                const alert = await this.alertController.create({ 
+                  header: 'Erro no Banco de Dados', 
+                  message: err.message || 'Erro ao excluir usuário do banco de dados.', 
+                  buttons: ['OK'] 
+                });
+                alert.present();
+              }
+            });
           }
         }
       ]
     });
-
     await alert.present();
   }
 
-  async showError(message: string) {
+  // Novo método para forçar logout de um usuário
+  async forceLogout(user: User) {
     const alert = await this.alertController.create({
-      header: 'Erro',
-      message: message,
-      buttons: ['OK']
+      header: 'Confirmar Ação',
+      message: `Forçar logout do usuário "${user.name}"?`,
+      buttons: [
+        { text: 'Cancelar', role: 'cancel' },
+        {
+          text: 'Desconectar',
+          role: 'confirm',
+          handler: async () => {
+            const loading = await this.loadingController.create({ message: 'Processando...', spinner: 'crescent' });
+            await loading.present();
+            
+            // Atualizar status de login do usuário no banco
+            const query = `
+              UPDATE usuarios 
+              SET ultimo_login = NULL, 
+                  token = NULL
+              WHERE id = ?
+            `;
+            
+            this.mysqlService.executeQuery(query, [user.id]).pipe(
+              finalize(() => loading.dismiss())
+            ).subscribe({
+              next: async () => {
+                const toast = await this.toastController.create({ 
+                  message: `Usuário ${user.name} foi desconectado com sucesso!`, 
+                  duration: 3000, 
+                  position: 'bottom', 
+                  color: 'success' 
+                });
+                toast.present();
+                this.loadLoggedInUsers(); // Recarregar lista de usuários logados
+              },
+              error: async (err: any) => {
+                console.error('Erro ao desconectar usuário:', err);
+                const alert = await this.alertController.create({ 
+                  header: 'Erro', 
+                  message: err.message || 'Erro ao processar a solicitação.', 
+                  buttons: ['OK'] 
+                });
+                alert.present();
+              }
+            });
+          }
+        }
+      ]
+    });
+    await alert.present();
+  }
+
+  formatDate(date?: Date): string {
+    if (!date) return 'N/A';
+    return new Date(date).toLocaleString('pt-BR');
+  }
+
+  getUserStatusClass(user: User): string {
+    if (!user.isActive) return 'user-inactive';
+    if (user.role === 'admin') return 'user-admin';
+    if (user.role === 'editor') return 'user-editor';
+    return 'user-normal';
+  }
+
+  translateRole(role?: string): string {
+    switch (role) {
+      case 'admin': return 'Administrador';
+      case 'editor': return 'Editor';
+      case 'user': return 'Usuário';
+      default: return role || 'Desconhecido';
+    }
+  }
+
+  async presentAccessDeniedAlert() {
+    const alert = await this.alertController.create({
+      header: 'Acesso Negado',
+      message: 'Apenas administradores podem modificar usuários.',
+      buttons: [{
+        text: 'OK',
+        handler: () => {
+          this.router.navigate(['/home']);
+        }
+      }]
     });
 
     await alert.present();
   }
 
-  async showSuccess(message: string) {
-    const alert = await this.alertController.create({
-      header: 'Sucesso',
-      message: message,
-      buttons: ['OK']
-    });
+  // Novo método para verificar se um usuário está online
+  isUserLoggedIn(user: User): boolean {
+    return this.loggedInUsers.some(u => u.id === user.id);
+  }
 
-    await alert.present();
+  // Método para salvar um usuário (usado pelos botões de salvar)
+  async saveUser(user: User) {
+    const loading = await this.loadingController.create({ message: 'Salvando usuário...', spinner: 'crescent' });
+    await loading.present();
+
+    // Preparar dados para atualização (sem alterar a senha)
+    const userData = {
+      name: user.name,
+      email: user.email,
+      role: user.role,
+      isActive: user.isActive,
+      // Não incluímos password aqui porque não queremos mudar a senha
+    };
+
+    // Usar o serviço de usuário para atualizar
+    this.userService.updateUser(user.id!, userData).pipe(
+      finalize(() => loading.dismiss())
+    ).subscribe({
+      next: async () => {
+        console.log(`Usuário ${user.name} atualizado com sucesso!`);
+        const toast = await this.toastController.create({ 
+          message: `Usuário ${user.name} salvo com sucesso!`, 
+          duration: 3000, 
+          position: 'bottom', 
+          color: 'success' 
+        });
+        toast.present();
+        // Recarregar os dados para refletir as alterações
+        this.loadUsers();
+        this.loadLoggedInUsers();
+      },
+      error: async (err: any) => {
+        console.error('Erro ao salvar usuário:', err);
+        const alert = await this.alertController.create({ 
+          header: 'Erro', 
+          message: err.message || 'Erro ao salvar usuário.', 
+          buttons: ['OK'] 
+        });
+        alert.present();
+      }
+    });
   }
 }

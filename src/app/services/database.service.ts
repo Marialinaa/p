@@ -165,20 +165,22 @@ export class DatabaseService {
         
         // Simula o armazenamento do token de autenticação
         const token = this.generateFakeToken(user);
-        localStorage.setItem('authToken', token);
+        localStorage.setItem('auth_token', token);
         
-        // Salvar o usuário atual
+        // Salvar o usuário atual com estrutura compatível com AuthService
         const currentUser = {
+          id: Math.floor(Math.random() * 1000), // ID simulado
           name: user.name,
-          email: user.email
+          email: user.email,
+          role: user.name.toLowerCase().includes('admin') ? 'admin' : 'user' // Simula determinação de papel
         };
-        localStorage.setItem('currentUser', JSON.stringify(currentUser));
+        localStorage.setItem('current_user', JSON.stringify(currentUser));
         
         // Atualizar o subject de usuário atual
         this.currentUserSubject.next(currentUser);
         
         console.log('Login bem-sucedido para:', email);
-        return user;
+        return currentUser;
       }),
       catchError((error: HttpErrorResponse | Error) => {
         let errorMessage = 'Ocorreu um erro desconhecido ao processar o login';
@@ -196,7 +198,9 @@ export class DatabaseService {
   }
 
   isAuthenticated(): boolean {
-    return !!localStorage.getItem('authToken');
+    const isAuth = !!localStorage.getItem('auth_token');
+    console.log('DatabaseService.isAuthenticated():', isAuth);
+    return isAuth;
   }
 
   logout(): void {

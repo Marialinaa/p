@@ -1,7 +1,7 @@
 <ion-header [translucent]="true">
   <ion-toolbar color="primary">
     <ion-title>
-      TenK
+      <strong>TenK</strong>
     </ion-title>
     <ion-buttons slot="end" *ngIf="isAuthenticated">
       <ion-button (click)="logout()">
@@ -37,12 +37,12 @@
           
           <h3>Acesso Rápido</h3>
           <div class="action-buttons">
-            <ion-button routerLink="/blog" expand="block" color="tertiary">
+            <ion-button routerLink="/blog" expand="block" color="tertiary" fill="solid">
               <ion-icon slot="start" name="document-text-outline"></ion-icon>
               Acessar Blog
             </ion-button>
             
-            <ion-button routerLink="/user-crud" expand="block" color="primary" *ngIf="isAuthenticated">
+            <ion-button *ngIf="isAdmin" routerLink="/user-crud" expand="block" color="danger">
               <ion-icon slot="start" name="people-outline"></ion-icon>
               Gerenciar Usuários
             </ion-button>
@@ -55,6 +55,29 @@
         </ion-card-content>
       </ion-card>
 
+      <!-- Seção especial para administradores -->
+      <ion-card *ngIf="isAdmin" color="light">
+        <ion-card-header color="danger">
+          <ion-card-title>
+            <ion-icon name="server-outline"></ion-icon>
+            Painel do Administrador
+          </ion-card-title>
+        </ion-card-header>
+        <ion-card-content>
+          <p>Como administrador do sistema, você tem acesso às seguintes funcionalidades:</p>
+          
+          <ion-list>
+            <ion-item detail="true" routerLink="/user-crud" button>
+              <ion-icon name="people-outline" slot="start" color="danger"></ion-icon>
+              <ion-label>
+                <h3>Gerenciamento de Usuários</h3>
+                <p>Criar, editar, listar e excluir usuários</p>
+              </ion-label>
+            </ion-item>
+          </ion-list>
+        </ion-card-content>
+      </ion-card>
+
       <!-- Seção de Informações e Notícias -->
       <ion-card>
         <ion-card-header>
@@ -64,14 +87,14 @@
           </ion-card-title>
         </ion-card-header>
         <ion-card-content>
-          <ion-list>
-            <ion-item *ngFor="let noticia of noticias">
-              <ion-icon slot="start" name="alert-circle-outline" *ngIf="noticia.importante"></ion-icon>
+          <ion-list lines="full">
+            <ion-item *ngFor="let noticia of noticias" button detail="true">
+              <ion-icon slot="start" name="alert-circle-outline" color="danger" *ngIf="noticia.importante"></ion-icon>
+              <ion-icon slot="start" name="information-circle-outline" color="medium" *ngIf="!noticia.importante"></ion-icon>
               <ion-label>
                 <h3>{{ noticia.titulo }}</h3>
-                <p>{{ noticia.data }} - {{ noticia.resumo }}</p>
+                <p><strong>{{ noticia.data }}</strong> - {{ noticia.resumo }}</p>
               </ion-label>
-              <ion-button slot="end" fill="clear">Ler mais</ion-button>
             </ion-item>
           </ion-list>
         </ion-card-content>
@@ -88,32 +111,30 @@
         <ion-card-content>
           <ion-grid>
             <ion-row>
-              <ion-col size="6">
+              <ion-col size="6" size-md="3">
                 <div class="stat-item">
-                  <ion-icon name="people-outline"></ion-icon>
+                  <ion-icon name="people-outline" color="primary"></ion-icon>
                   <h2>{{ userStats.total }}</h2>
                   <p>Usuários Cadastrados</p>
                 </div>
               </ion-col>
-              <ion-col size="6">
+              <ion-col size="6" size-md="3">
                 <div class="stat-item">
-                  <ion-icon name="document-text-outline"></ion-icon>
+                  <ion-icon name="document-text-outline" color="secondary"></ion-icon>
                   <h2>{{ blogStats.total }}</h2>
                   <p>Posts no Blog</p>
                 </div>
               </ion-col>
-            </ion-row>
-            <ion-row>
-              <ion-col size="6">
+              <ion-col size="6" size-md="3">
                 <div class="stat-item">
-                  <ion-icon name="calendar-outline"></ion-icon>
+                  <ion-icon name="calendar-outline" color="tertiary"></ion-icon>
                   <h2>{{ userStats.novos }}</h2>
                   <p>Novos essa semana</p>
                 </div>
               </ion-col>
-              <ion-col size="6">
+              <ion-col size="6" size-md="3">
                 <div class="stat-item">
-                  <ion-icon name="time-outline"></ion-icon>
+                  <ion-icon name="time-outline" color="success"></ion-icon>
                   <h2>{{ blogStats.recentes }}</h2>
                   <p>Posts recentes</p>
                 </div>
@@ -128,7 +149,7 @@
     <div *ngIf="!isAuthenticated">
       <!-- Área de Login/Registro -->
       <ion-card class="non-auth-container">
-        <ion-card-header>
+        <ion-card-header color="light">
           <ion-card-title>
             <ion-icon name="log-in-outline"></ion-icon>
             Acesso ao Sistema
@@ -138,21 +159,21 @@
           <p>Faça login para acessar todos os recursos do sistema TenK, incluindo o Blog. Novo por aqui? Registre-se para criar sua conta.</p>
           
           <div class="action-buttons">
-            <ion-button routerLink="/login" expand="block" color="primary">
+            <ion-button routerLink="/login" expand="block" color="primary" shape="round" size="large">
               <ion-icon slot="start" name="log-in-outline"></ion-icon>
               Login
             </ion-button>
             
-            <ion-button routerLink="/register" expand="block" color="secondary">
+            <ion-button routerLink="/register" expand="block" color="secondary" shape="round" size="large">
               <ion-icon slot="start" name="person-add-outline"></ion-icon>
               Registro
             </ion-button>
+          </div>
 
-            <div class="login-help">
-              <a routerLink="/login">Esqueci minha senha</a>
-              <span class="separator">|</span>
-              <a routerLink="/support">Preciso de ajuda</a>
-            </div>
+          <div class="login-help">
+            <a routerLink="/login">Esqueci minha senha</a>
+            <span class="separator">|</span>
+            <a routerLink="/support">Preciso de ajuda</a>
           </div>
         </ion-card-content>
       </ion-card>
@@ -170,10 +191,10 @@
             <ion-row>
               <ion-col size="12" size-md="6" *ngFor="let servico of servicosPublicos">
                 <div class="servico-item">
-                  <ion-icon [name]="servico.icone"></ion-icon>
+                  <ion-icon [name]="servico.icone" color="primary"></ion-icon>
                   <h3>{{ servico.titulo }}</h3>
                   <p>{{ servico.descricao }}</p>
-                  <ion-button [routerLink]="servico.link" fill="clear">
+                  <ion-button [routerLink]="servico.link" fill="clear" color="primary">
                     Acessar
                     <ion-icon slot="end" name="arrow-forward-outline"></ion-icon>
                   </ion-button>
@@ -194,24 +215,44 @@
         </ion-card-header>
         <ion-card-content>
           <ion-list>
-            <ion-item *ngFor="let post of blogPosts">
+            <ion-item *ngFor="let post of blogPosts" detail="true">
               <ion-thumbnail slot="start">
                 <img [src]="post.imagem" alt="Imagem do post">
               </ion-thumbnail>
               <ion-label>
                 <h3>{{ post.titulo }}</h3>
-                <p>{{ post.data }} - {{ post.autor }}</p>
+                <p><ion-text color="medium">{{ post.data }}</ion-text> - {{ post.autor }}</p>
+                <p>{{ post.resumo }}</p>
               </ion-label>
             </ion-item>
           </ion-list>
           
-          <ion-button (click)="navigateToLogin()" expand="block" color="tertiary">
+          <ion-button (click)="navigateToLogin()" expand="block" color="tertiary" shape="round" class="ion-margin-top">
             <ion-icon slot="start" name="log-in-outline"></ion-icon>
             Faça login para acessar o Blog
           </ion-button>
+          
+          <!-- Removido o botão de Gerenciar Usuários da área pública -->
         </ion-card-content>
       </ion-card>
     </div>
+
+    <!-- Adicionado aqui o botão de Gerenciar Usuários apenas para usuários autenticados -->
+    <ion-card *ngIf="isAuthenticated">
+      <ion-card-header color="warning">
+        <ion-card-title>
+          <ion-icon name="people-outline"></ion-icon>
+          Gerenciamento de Usuários
+        </ion-card-title>
+      </ion-card-header>
+      <ion-card-content>
+        <p>Administre os usuários do sistema com controle total sobre cadastros.</p>
+        <ion-button routerLink="/user-crud" expand="block" color="warning" class="ion-margin-top ion-padding" size="large">
+          <ion-icon slot="start" name="people-outline" size="large"></ion-icon>
+          <strong>Gerenciar Usuários</strong>
+        </ion-button>
+      </ion-card-content>
+    </ion-card>
 
     <!-- Seção de Funcionalidades (Comum a todos) -->
     <ion-card>
@@ -224,7 +265,7 @@
       <ion-card-content>
         <div class="features-grid">
           <div class="feature-card" *ngFor="let feature of features">
-            <ion-icon [name]="feature.icone"></ion-icon>
+            <ion-icon [name]="feature.icone" color="primary"></ion-icon>
             <h3>{{ feature.titulo }}</h3>
             <p>{{ feature.descricao }}</p>
           </div>
@@ -235,7 +276,7 @@
     <!-- Rodapé -->
     <footer>
       <div class="footer-content">
-        <p>TenK - Sistema de Gerenciamento v1.5.0</p>
+        <p><strong>TenK</strong> - Sistema de Gerenciamento v1.5.0</p>
         <p>Desenvolvido com Angular 17 e Ionic 7</p>
         <p>&copy; 2025 - Todos os direitos reservados</p>
       </div>

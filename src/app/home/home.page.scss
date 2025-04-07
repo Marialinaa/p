@@ -25,6 +25,32 @@
   text-decoration: none;
 }
 
+// Base Container Styles
+.content-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 16px;
+}
+
+// Header Info Section
+.sistema-info {
+  padding: 8px 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  
+  em {
+    font-style: italic;
+    color: var(--ion-color-medium);
+    font-size: 14px;
+  }
+  
+  .idealizacao {
+    font-size: 12px;
+    color: var(--ion-color-medium-shade);
+  }
+}
+
 .home-container {
   max-width: 1200px;
   margin: 0 auto;
@@ -59,6 +85,37 @@
   }
 }
 
+// Card Styling Enhancements
+ion-card {
+  margin-bottom: 24px;
+  border-radius: 12px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+  overflow: hidden;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  
+  &:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+  }
+  
+  ion-card-header {
+    background-color: rgba(var(--ion-color-primary-rgb), 0.05);
+    
+    ion-card-title {
+      font-size: 18px;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      
+      ion-icon {
+        font-size: 22px;
+        margin-right: 8px;
+        color: var(--ion-color-primary);
+      }
+    }
+  }
+}
+
 .welcome-section {
   text-align: center;
   margin-bottom: 30px;
@@ -81,22 +138,34 @@
   }
 }
 
+// Action Buttons
 .action-buttons {
   display: flex;
   flex-direction: column;
-  gap: 10px;
-  max-width: 500px;
-  margin: 20px auto;
+  gap: 12px;
+  margin: 16px 0;
+  
+  @media (min-width: 576px) {
+    flex-direction: row;
+    flex-wrap: wrap;
+    
+    ion-button {
+      flex: 1 1 auto;
+      min-width: 180px;
+    }
+  }
 }
 
+// Login Help Links
 .login-help {
-  margin-top: 15px;
+  margin-top: 16px;
   text-align: center;
   font-size: 14px;
   
   a {
     color: var(--ion-color-primary);
     text-decoration: none;
+    padding: 4px 8px;
     
     &:hover {
       text-decoration: underline;
@@ -104,10 +173,11 @@
   }
   
   .separator {
-    margin: 0 10px;
+    margin: 0 4px;
     color: var(--ion-color-medium);
   }
 }
+
 
 .auth-container, .non-auth-container {
   background-color: white;
@@ -131,72 +201,76 @@
   border-left: 4px solid var(--ion-color-warning);
 }
 
+// Statistics Styling
 .stat-item {
+  padding: 16px;
   text-align: center;
-  padding: 15px 10px;
-  border-radius: 8px;
-  background-color: #f8f9fa;
-  transition: transform 0.2s ease;
+  background-color: rgba(var(--ion-color-light-rgb), 0.7);
+  border-radius: 10px;
+  transition: all 0.3s ease;
+  height: 100%;
   
   &:hover {
-    transform: translateY(-5px);
-    background-color: #f0f1f3;
+    background-color: rgba(var(--ion-color-primary-rgb), 0.1);
   }
   
   ion-icon {
     font-size: 32px;
     color: var(--ion-color-primary);
-    margin-bottom: 10px;
+    margin-bottom: 8px;
   }
   
   h2 {
-    font-size: 24px;
-    font-weight: 600;
+    font-size: 28px;
+    font-weight: 700;
     color: var(--ion-color-dark);
-    margin: 0;
+    margin: 4px 0;
   }
   
   p {
     font-size: 14px;
     color: var(--ion-color-medium);
-    margin: 5px 0 0;
+    margin: 4px 0 0;
   }
 }
 
+// Service Items
 .servico-item {
   padding: 20px;
-  background-color: #f8f9fa;
-  border-radius: 8px;
+  background-color: var(--ion-color-light);
+  border-radius: 10px;
   height: 100%;
-  transition: box-shadow 0.3s ease;
+  transition: all 0.3s ease;
+  display: flex;
+  flex-direction: column;
   
   &:hover {
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    background-color: rgba(var(--ion-color-primary-rgb), 0.08);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1);
   }
   
   ion-icon {
     font-size: 36px;
     color: var(--ion-color-primary);
-    margin-bottom: 15px;
+    margin-bottom: 12px;
   }
   
   h3 {
     font-size: 18px;
-    font-weight: 500;
+    font-weight: 600;
     color: var(--ion-color-dark);
-    margin: 0 0 10px;
+    margin: 0 0 8px;
   }
   
   p {
     font-size: 14px;
     color: var(--ion-color-medium);
-    margin: 0 0 15px;
+    margin: 0 0 16px;
+    flex-grow: 1;
   }
   
   ion-button {
-    --padding-start: 0;
-    --padding-end: 0;
-    height: 30px;
+    align-self: flex-start;
   }
 }
 
@@ -208,50 +282,50 @@
   }
 }
 
+// Features Grid
 .features-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-  gap: 20px;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 16px;
+  margin-top: 16px;
 }
 
 .feature-card {
-  background-color: white;
-  padding: 20px;
-  border-radius: 8px;
+  background-color: rgba(var(--ion-color-light-rgb), 0.5);
+  padding: 24px 16px;
+  border-radius: 10px;
   text-align: center;
-  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.08);
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  transition: all 0.3s ease;
   
   &:hover {
     transform: translateY(-5px);
-    box-shadow: 0px 6px 12px rgba(0, 0, 0, 0.1);
+    background-color: rgba(var(--ion-color-primary-rgb), 0.08);
   }
   
   ion-icon {
     font-size: 40px;
     color: var(--ion-color-primary);
-    margin-bottom: 15px;
+    margin-bottom: 16px;
   }
   
   h3 {
     color: var(--ion-color-dark);
-    margin-bottom: 10px;
+    margin-bottom: 8px;
+    font-weight: 600;
   }
   
   p {
     color: var(--ion-color-medium);
     font-size: 14px;
+    line-height: 1.5;
   }
 }
 
-ion-button {
-  margin-bottom: 10px;
-}
-
+// Footer Styling
 footer {
   margin-top: 40px;
   border-top: 1px solid var(--ion-color-light);
-  padding-top: 20px;
+  padding: 20px 0;
   
   .footer-content {
     text-align: center;
@@ -259,11 +333,12 @@ footer {
     font-size: 14px;
     
     p {
-      margin: 5px 0;
+      margin: 4px 0;
     }
   }
 }
 
+// Media Queries
 @media (max-width: 768px) {
   .welcome-section {
     padding: 20px;
@@ -278,8 +353,31 @@ footer {
   }
   
   .sistema-info {
+    flex-direction: column;
+    align-items: flex-start;
+    
+    .idealizacao {
+      margin-top: 4px;
+    }
+  }
+  
+  ion-card-title {
+    font-size: 16px;
+  }
+  
+  .stat-item h2 {
+    font-size: 24px;
+  }
+  
+  .sistema-info {
     .idealizacao {
       display: none; // Oculta em telas pequenas
     }
+  }
+}
+
+@media (max-width: 576px) {
+  .content-container {
+    padding: 8px;
   }
 }

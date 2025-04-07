@@ -22,7 +22,7 @@ export const routes: Routes = [
   {
     path: 'user-crud',
     loadComponent: () => import('./user-crud/user-crud.component').then((m) => m.UserCrudComponent),
-    canActivate: [AuthGuard] // Também protegendo o CRUD de usuários
+    canActivate: [AuthGuard] // Mantida a proteção com AuthGuard
   },
   {
     path: '',

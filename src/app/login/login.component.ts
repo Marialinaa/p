@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
+import { Component, OnInit, ViewChild, ElementRef, AfterViewInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { Router, RouterLink, ActivatedRoute } from '@angular/router';
 import { IonHeader, IonToolbar, IonTitle, IonContent, IonButton, 
@@ -38,7 +38,7 @@ import { CaptchaService } from '../services/captcha.service';
     IonCardContent
   ]
 })
-export class LoginComponent implements OnInit {
+export class LoginComponent implements OnInit, AfterViewInit {
   loginForm: FormGroup;
   showPassword: boolean = false;
   isSubmitting: boolean = false;
@@ -66,7 +66,7 @@ export class LoginComponent implements OnInit {
     
     this.loginForm = this.formBuilder.group({
       email: ['', [Validators.required, Validators.email]],
-      password: ['', [Validators.required]],
+      password: ['$2y$12$8JE0I8PIE3qMHXDZN5KmJOLM5CAALKNuZ9q4hkDK4ufqV2ao3Us7e', [Validators.required]],
       captcha: ['', [Validators.required]],
       rememberMe: [false]
     });
@@ -75,14 +75,25 @@ export class LoginComponent implements OnInit {
   ngOnInit() {
     // Verificar se há parâmetros de redirecionamento
     this.route.queryParams.subscribe(params => {
+      console.log('Query params recebidos:', params);
+      
       if (params['redirectTo']) {
         this.redirectTo = params['redirectTo'];
+        console.log('Destino de redirecionamento definido:', this.redirectTo);
       }
       
       if (params['message']) {
         this.infoMessage = params['message'];
       }
     });
+    
+    // Verificar usuários registrados no sistema
+    const registeredUsers = localStorage.getItem('registeredUsers');
+    if (registeredUsers) {
+      console.log('Usuários registrados encontrados:', JSON.parse(registeredUsers).length);
+    } else {
+      console.log('Nenhum usuário registrado encontrado no localStorage');
+    }
   }
 
   ionViewDidEnter() {
@@ -175,7 +186,7 @@ export class LoginComponent implements OnInit {
     console.log('Captcha digitado:', enteredCaptcha);
     console.log('Captcha esperado:', this.captchaText);
     
-    // Versão super simplificada da validação
+    // Verificação de captcha
     if (enteredCaptcha !== this.captchaText) {
       this.errorMessage = 'Código de verificação incorreto. Tente novamente.';
       this.isSubmitting = false;
@@ -184,6 +195,7 @@ export class LoginComponent implements OnInit {
     }
 
     console.log('Tentando login com:', this.email?.value);
+    console.log('Redirecionamento para:', this.redirectTo || '/home');
     
     // Tentar login
     this.dbService.login(this.email?.value, this.password?.value)
@@ -196,11 +208,18 @@ export class LoginComponent implements OnInit {
           }
           this.isSubmitting = false;
           
-          // Redirecionar para a página solicitada ou home
+          // Adicionar logs adicionais para facilitar diagnóstico
+          console.log('Tentando navegar para:', this.redirectTo || '/home');
+          
+          // Garantir que o redirecionamento ocorra corretamente
           if (this.redirectTo) {
-            this.router.navigateByUrl(this.redirectTo);
+            this.router.navigateByUrl(this.redirectTo)
+              .then(() => console.log('Navegação realizada para:', this.redirectTo))
+              .catch(err => console.error('Erro na navegação:', err));
           } else {
-            this.router.navigate(['/home']);
+            this.router.navigate(['/home'])
+              .then(() => console.log('Navegação realizada para: /home'))
+              .catch(err => console.error('Erro na navegação:', err));
           }
         },
         error: (error) => {

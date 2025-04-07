@@ -1,9 +1,9 @@
-import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
+import { Component, ViewChild, ElementRef } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, AbstractControl, ValidatorFn, ReactiveFormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { IonHeader, IonToolbar, IonTitle, IonContent, IonButton, 
          IonItem, IonLabel, IonInput, IonNote, IonIcon, 
-         IonSpinner, IonButtons, IonBackButton, AlertController } from '@ionic/angular/standalone';
+         IonSpinner, IonButtons, IonBackButton, AlertController, IonCheckbox } from '@ionic/angular/standalone';
 import { CommonModule } from '@angular/common';
 import { addIcons } from 'ionicons';
 import { eye, eyeOff, refreshOutline, homeOutline, personOutline, mailOutline, lockClosed } from 'ionicons/icons';
@@ -31,20 +31,18 @@ import { AuthService } from '../services/auth.service';
     IonIcon,
     IonSpinner,
     IonButtons,
-    IonBackButton
+    IonBackButton,
+    IonCheckbox
   ]
 })
-export class RegisterComponent implements OnInit {
+export class RegisterComponent {
   registerForm: FormGroup;
   showPassword: boolean = false;
   isSubmitting: boolean = false;
   errorMessage: string = '';
   passwordStrength: number = 0;
   passwordFeedback: string = '';
-  profilePhotoUrl: string | null = null;
   isSubmitAttempted: boolean = false;
-  
-  @ViewChild('fileInput') fileInput!: ElementRef;
 
   constructor(
     private formBuilder: FormBuilder,
@@ -62,7 +60,6 @@ export class RegisterComponent implements OnInit {
     this.registerForm = this.formBuilder.group({
       name: ['', [Validators.required, Validators.minLength(3)]],
       email: ['', [Validators.required, Validators.email]],
-      phone: ['', [Validators.pattern(/^\(\d{2}\)\s\d{5}-\d{4}$/)]],
       password: ['', [
         Validators.required, 
         Validators.minLength(6),
@@ -73,11 +70,8 @@ export class RegisterComponent implements OnInit {
     }, { validators: this.passwordMatchValidator });
   }
 
-  ngOnInit() {}
-
   get name() { return this.registerForm.get('name'); }
   get email() { return this.registerForm.get('email'); }
-  get phone() { return this.registerForm.get('phone'); }
   get password() { return this.registerForm.get('password'); }
   get confirmPassword() { return this.registerForm.get('confirmPassword'); }
   get termsAccepted() { return this.registerForm.get('termsAccepted'); }
@@ -125,8 +119,10 @@ export class RegisterComponent implements OnInit {
   }
 
   passwordMatchValidator(g: FormGroup) {
-    return g.get('password')?.value === g.get('confirmPassword')?.value
-      ? null : { mismatch: true };
+    const password = g.get('password')?.value;
+    const confirmPassword = g.get('confirmPassword')?.value;
+    
+    return password === confirmPassword ? null : { passwordMismatch: true };
   }
 
   togglePasswordVisibility() {
@@ -149,42 +145,7 @@ export class RegisterComponent implements OnInit {
     return '';
   }
 
-  selectProfilePhoto() {
-    this.fileInput.nativeElement.click();
-  }
-
-  onFileSelected(event: Event) {
-    const input = event.target as HTMLInputElement;
-    
-    if (input.files && input.files[0]) {
-      const file = input.files[0];
-      
-      // Verificar tamanho (max 5MB)
-      if (file.size > 5 * 1024 * 1024) {
-        this.showError('A imagem deve ter no máximo 5MB.');
-        return;
-      }
-      
-      // Verificar tipo
-      if (!file.type.match('image.*')) {
-        this.showError('Por favor, selecione uma imagem válida.');
-        return;
-      }
-      
-      const reader = new FileReader();
-      reader.onload = () => {
-        this.profilePhotoUrl = reader.result as string;
-      };
-      reader.readAsDataURL(file);
-    }
-  }
-
   logFormState() {
-    // Se o botão está clicável mas o evento onSubmit não está sendo chamado,
-    // este método vai nos ajudar a diagnosticar o problema
-    console.log('Botão clicado');
-    console.log('Formulário válido?', this.registerForm.valid);
-    console.log('isSubmitting?', this.isSubmitting);
     
     if (this.registerForm.invalid) {
       console.log('Erros do formulário:', this.registerForm.errors);
@@ -202,7 +163,9 @@ export class RegisterComponent implements OnInit {
         control?.markAsTouched();
       });
     } else {
-      console.log('Formulário deveria ser enviado!');
+      console.log('Formulário está válido, tentando enviar...');
+      // Aqui você poderia acionar o envio do formulário
+      // this.onSubmit();
     }
   }
 
@@ -221,15 +184,15 @@ export class RegisterComponent implements OnInit {
     const userData = {
       name: this.name?.value,
       email: this.email?.value,
-      password: this.password?.value,
-      phone: this.phone?.value || null,
-      profilePhoto: this.profilePhotoUrl
+      password: this.password?.value
     };
 
-    // Chamar o serviço de autenticação para registrar o usuário
-    this.dbService.createUser(userData).subscribe({
-      next: (user) => {
-        console.log('Usuário registrado com sucesso:', user);
+    console.log('Enviando dados do usuário para registro:', userData);
+
+    // Usar o serviço de autenticação para registro com o backend PHP
+    this.authService.register(userData).subscribe({
+      next: (response) => {
+        console.log('Usuário registrado com sucesso:', response);
         this.showSuccessAlert();
         this.isSubmitting = false;
       },
@@ -296,7 +259,16 @@ export class RegisterComponent implements OnInit {
     await alert.present();
   }
 
-  navigateToLogin() {
-    this.router.navigate(['/login']);
+  getFormControlErrorDetails(control: AbstractControl | null): string {
+    if (!control || !control.errors) return '';
+    
+    const errors = [];
+    
+    if (control.errors['required']) errors.push('campo obrigatório');
+    if (control.errors['minlength']) errors.push(`mínimo de ${control.errors['minlength'].requiredLength} caracteres`);
+    if (control.errors['email']) errors.push('formato de email inválido');
+    if (control.errors['passwordStrength']) errors.push('senha não atende os requisitos mínimos');
+    
+    return errors.join(', ');
   }
 }

@@ -1,0 +1,49 @@
+<ion-header>
+  <ion-toolbar color="primary">
+    <ion-buttons slot="start">
+      <ion-button (click)="backToLogin()">
+        <ion-icon name="arrow-back-outline"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+    <ion-title>Verificação de Segurança</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <div class="two-factor-container">
+    <div class="two-factor-card">
+      <ion-icon name="shield-outline" class="shield-icon"></ion-icon>
+      <h1>Verificação em Duas Etapas</h1>
+      <p>Por favor, digite o código de 6 dígitos enviado para seu email.</p>
+
+      <div class="timer">
+        <div class="timer-label">Código expira em:</div>
+        <div class="timer-value" [ngClass]="{'expiring': remainingTime < 60}">{{ formatTime(remainingTime) }}</div>
+      </div>
+
+      <form [formGroup]="twoFactorForm" (ngSubmit)="onSubmit()">
+        <ion-item>
+          <ion-icon name="lock-closed-outline" slot="start"></ion-icon>
+          <ion-label position="floating">Código de Verificação</ion-label>
+          <ion-input type="text" formControlName="verificationCode" maxlength="6" inputmode="numeric"></ion-input>
+          <ion-note slot="error" *ngIf="twoFactorForm.get('verificationCode')?.invalid && 
+                                        (twoFactorForm.get('verificationCode')?.dirty || 
+                                         twoFactorForm.get('verificationCode')?.touched)">
+            Por favor, digite o código de 6 dígitos
+          </ion-note>
+        </ion-item>
+
+        <div class="error-message" *ngIf="errorMessage">{{ errorMessage }}</div>
+
+        <ion-button expand="block" type="submit" [disabled]="twoFactorForm.invalid || isSubmitting || remainingTime <= 0">
+          <ion-spinner name="crescent" *ngIf="isSubmitting"></ion-spinner>
+          <span *ngIf="!isSubmitting">Verificar</span>
+        </ion-button>
+      </form>
+
+      <div class="help-text">
+        <p>Não recebeu o código? <a href="#" (click)="backToLogin()">Tente novamente</a></p>
+      </div>
+    </div>
+  </div>
+</ion-content>

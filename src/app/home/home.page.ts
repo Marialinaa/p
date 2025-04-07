@@ -1,10 +1,11 @@
 import { Component, OnInit } from '@angular/core';
 import { IonHeader, IonToolbar, IonTitle, IonContent, IonButton, IonIcon, IonButtons, 
   IonCard, IonCardHeader, IonCardTitle, IonCardContent, IonCardSubtitle, 
-  IonGrid, IonRow, IonCol, IonThumbnail, IonList, IonItem, IonLabel } from '@ionic/angular/standalone';
+  IonGrid, IonRow, IonCol, IonThumbnail, IonList, IonItem, IonLabel, IonText } from '@ionic/angular/standalone';
 import { RouterLink, Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { DatabaseService } from '../services/database.service';
+import { AuthService } from '../services/auth.service';
 import { addIcons } from 'ionicons';
 import { 
   logInOutline, 
@@ -21,7 +22,13 @@ import {
   alertCircleOutline,
   calendarOutline,
   timeOutline,
-  arrowForwardOutline
+  arrowForwardOutline, 
+  informationCircleOutline, 
+  serverOutline,
+  shieldCheckmarkOutline,
+  phonePortraitOutline,
+  folderOpenOutline,
+  clipboardOutline
 } from 'ionicons/icons';
 
 interface Noticia {
@@ -85,11 +92,13 @@ interface Funcionalidade {
     IonThumbnail,
     IonList,
     IonItem,
-    IonLabel
+    IonLabel,
+    IonText
   ]
 })
 export class HomePage implements OnInit {
   isAuthenticated: boolean = false;
+  isAdmin: boolean = false;
   userName: string = '';
   
   // Dados para notícias
@@ -155,7 +164,7 @@ export class HomePage implements OnInit {
     }
   ];
   
-  // Posts do blog
+  // Posts do blog com imagens base64 em vez de URLs externas
   blogPosts: Post[] = [
     {
       id: 1,
@@ -163,7 +172,7 @@ export class HomePage implements OnInit {
       data: '03/04/2025',
       autor: 'Maria Silva',
       resumo: 'Como implementar operações CRUD em Angular 17 usando componentes standalone',
-      imagem: 'assets/img/post1.jpg'
+      imagem: this.getPlaceholderImage('Angular CRUD', '#3880ff')
     },
     {
       id: 2,
@@ -171,7 +180,7 @@ export class HomePage implements OnInit {
       data: '28/03/2025',
       autor: 'João Pereira',
       resumo: 'Boas práticas para implementar autenticação em aplicativos Ionic',
-      imagem: 'assets/img/post2.jpg'
+      imagem: this.getPlaceholderImage('Ionic Auth', '#3dc2ff')
     },
     {
       id: 3,
@@ -179,7 +188,7 @@ export class HomePage implements OnInit {
       data: '20/03/2025',
       autor: 'Ana Costa',
       resumo: 'Dicas e técnicas para melhorar a performance de suas aplicações',
-      imagem: 'assets/img/post3.jpg'
+      imagem: this.getPlaceholderImage('Angular Performance', '#5260ff')
     }
   ];
   
@@ -209,26 +218,27 @@ export class HomePage implements OnInit {
 
   constructor(
     private router: Router,
-    private dbService: DatabaseService
+    private dbService: DatabaseService,
+    private authService: AuthService
   ) {
     // Registrar os ícones que serão usados neste componente
-    addIcons({
-      logOutOutline,
-      documentTextOutline,
-      peopleOutline,
-      logInOutline,
-      personAddOutline,
-      homeOutline,
-      statsChartOutline,
-      newspaperOutline,
-      personCircleOutline,
-      appsOutline,
-      rocketOutline,
-      alertCircleOutline,
-      calendarOutline,
-      timeOutline,
-      arrowForwardOutline
-    });
+    addIcons({logOutOutline,personCircleOutline,documentTextOutline,peopleOutline,serverOutline,newspaperOutline,alertCircleOutline,informationCircleOutline,statsChartOutline,calendarOutline,timeOutline,logInOutline,personAddOutline,appsOutline,arrowForwardOutline,rocketOutline,homeOutline,shieldCheckmarkOutline,phonePortraitOutline,folderOpenOutline,clipboardOutline});
+  }
+
+  /**
+   * Gera uma imagem de placeholder SVG com texto e cor personalizados
+   * Esta função substitui a dependência de serviços externos como via.placeholder.com
+   */
+  getPlaceholderImage(text: string, bgColor: string = '#cccccc', textColor: string = '#ffffff'): string {
+    const svgContent = `
+      <svg xmlns="http://www.w3.org/2000/svg" width="150" height="150" viewBox="0 0 150 150">
+        <rect width="150" height="150" fill="${bgColor}"/>
+        <text x="50%" y="50%" font-family="Arial, sans-serif" font-size="14" 
+              fill="${textColor}" text-anchor="middle" dominant-baseline="middle">${text}</text>
+      </svg>
+    `;
+    
+    return `data:image/svg+xml;base64,${btoa(svgContent)}`;
   }
 
   ngOnInit() {
@@ -240,26 +250,37 @@ export class HomePage implements OnInit {
   }
 
   checkAuthStatus() {
-    this.isAuthenticated = this.dbService.isAuthenticated();
-    
-    if (this.isAuthenticated) {
-      // Obter informações do usuário logado
-      this.dbService.currentUser$.subscribe(user => {
-        if (user) {
-          this.userName = user.name;
-        } else {
-          // Tentar obter do localStorage
-          const storedUser = localStorage.getItem('currentUser');
-          if (storedUser) {
-            try {
-              const userData = JSON.parse(storedUser);
-              this.userName = userData.name;
-            } catch (error) {
-              console.error('Erro ao ler dados do usuário:', error);
+    try {
+      this.isAuthenticated = this.authService.isAuthenticated();
+      
+      if (this.isAuthenticated) {
+        // Obter informações do usuário logado
+        this.authService.currentUser$.subscribe(user => {
+          if (user) {
+            this.userName = user.name;
+          } else {
+            // Tentar obter do localStorage
+            const storedUser = localStorage.getItem('current_user');
+            if (storedUser) {
+              try {
+                const userData = JSON.parse(storedUser);
+                this.userName = userData.name;
+              } catch (error) {
+                console.error('Erro ao ler dados do usuário:', error);
+              }
             }
           }
-        }
-      });
+        });
+
+        // Verificar se o usuário é administrador
+        this.authService.isAdmin().subscribe(isAdmin => {
+          this.isAdmin = isAdmin;
+        });
+      }
+    } catch (error) {
+      console.error('Erro ao verificar status de autenticação:', error);
+      this.isAuthenticated = false;
+      this.userName = '';
     }
   }
 

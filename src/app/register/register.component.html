@@ -103,14 +103,16 @@
         </div>
         
         <div class="error-message" *ngIf="errorMessage">{{ errorMessage }}</div>
-        
-        <ion-button expand="block" type="submit" [disabled]="registerForm.invalid || isSubmitting">
+                  
+        <ion-button expand="block" type="submit" [disabled]="registerForm.invalid || isSubmitting" (click)="logFormState()">
           <ion-spinner name="crescent" *ngIf="isSubmitting"></ion-spinner>
           <span *ngIf="!isSubmitting">Registrar</span>
+          <!-- Mostrar status -->
+          <small *ngIf="registerForm.invalid" class="status-hint">Formulário inválido</small>
         </ion-button>
         
         <div class="login-link">
-          <p>Já tem uma conta? <a (click)="navigateToLogin()">Fazer login</a></p>
+          <p>Já tem uma conta? <a routerLink="/login">Fazer login</a></p>
         </div>
       </form>
     </div>

@@ -4,12 +4,18 @@
 
 export const environment = {
   production: false,
-  apiUrl: 'http://localhost:3000/api', // URL base para chamadas de API
+  apiUrl: 'http://localhost/tenk/backend/api',
   database: {
     host: 'localhost',
     port: 3306,
-    name: 'tankBdM',
-    user: 'root'
+    name: 'tenkbdm',
+    user: 'root',
+    connectionString: 'mysql://root@localhost:3306/tenkbdm'
+  },
+  security: {
+    tokenExpirationTime: 86400, // 24 horas em segundos
+    jwtSecret: 'dev_secret_key_change_in_production',
+    bcryptSaltRounds: 12
   }
 };
 
